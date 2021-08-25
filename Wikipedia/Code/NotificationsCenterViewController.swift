@@ -55,6 +55,16 @@ final class NotificationsCenterViewController: ViewController {
 
 		let editButton = UIBarButtonItem(title: WMFLocalizedString("notifications-center-edit-button", value: "Edit", comment: "Title for navigation bar button to toggle mode for editing notification read status"), style: .plain, target: nil, action: nil)
 		navigationItem.rightBarButtonItem = editButton
+
+		if #available(iOS 13.0, *) {
+			let filterButton = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal.decrease.circle"), style: .plain, target: nil, action: nil) // requires iOS 15 :(
+			let projectButton = UIBarButtonItem(image: UIImage(systemName: "tray"), style: .plain, target: nil, action: nil)
+
+			toolbar.items = [
+				filterButton,
+				projectButton
+			]
+		}
 	}
 
 	func bind() {
