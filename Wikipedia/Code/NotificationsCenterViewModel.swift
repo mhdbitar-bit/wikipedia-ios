@@ -6,25 +6,34 @@ final class NotificationsCenterViewModel: NSObject {
 	// MARK: - Properties
 
 	let remoteNotificationsController: RemoteNotificationsController
+	let fetchedResultsController: NSFetchedResultsController<RemoteNotification>?
 
 	// MARK: - Lifecycle
 
 	@objc
 	init(remoteNotificationsController: RemoteNotificationsController) {
 		self.remoteNotificationsController = remoteNotificationsController
+		self.fetchedResultsController = remoteNotificationsController.fetchedResultsController()
 	}
 
 	// MARK: - Public
 
-	// Data transformations
+	func notificationCellViewModel(indexPath: IndexPath) -> NotificationsCenterCellViewModel? {
+		if let remoteNotification = fetchedResultsController?.object(at: indexPath) {
+			return NotificationsCenterCellViewModel(remoteNotification: remoteNotification)
+		}
 
-	var fetchedResultsController: NSFetchedResultsController<RemoteNotification>? {
-		return remoteNotificationsController.fetchedResultsController()
+		return nil
 	}
 
 }
 
 final class NotificationsCenterCellViewModel {
+
+	enum TempRemoteNotificationCategory {
+		case thanks
+		case other
+	}
 
 	let remoteNotification: RemoteNotification
 
@@ -33,15 +42,20 @@ final class NotificationsCenterCellViewModel {
 	}
 
 	var message: String {
-		return remoteNotification.messageBody ?? ""
+		return remoteNotification.messageHeader ?? "–"
 	}
 
-	var time: Date {
+	var date: Date {
 		return remoteNotification.date ?? Date()
 	}
 
-	var type: RemoteNotificationCategory {
-		return remoteNotification.category
+	var type: TempRemoteNotificationCategory {
+		if (remoteNotification.categoryString ?? "").contains("thank") {
+			return .thanks
+		}
+		return .other
+
+		// should return remoteNotification.category
 	}
 
 }

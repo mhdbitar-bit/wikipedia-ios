@@ -40,6 +40,13 @@ final class NotificationsCenterViewController: ViewController {
 		bind()
 	}
 
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+
+		viewModel.fetchedResultsController?.delegate = self
+		try? viewModel.fetchedResultsController?.performFetch()
+	}
+
 	// MARK: - Configuration
 
 	fileprivate func setupBarButtons() {
@@ -61,15 +68,31 @@ final class NotificationsCenterViewController: ViewController {
 
 extension NotificationsCenterViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 
+	func numberOfSections(in collectionView: UICollectionView) -> Int {
+		return viewModel.fetchedResultsController?.sections?.count ?? 0
+	}
+
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return 5
+		return viewModel.fetchedResultsController?.sections?[section].numberOfObjects ?? 0
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NoticeCollectionViewCell.reuseIdentifier, for: indexPath) as! NoticeCollectionViewCell
 
 		cell.apply(theme: theme)
+
+		if let cellModel = viewModel.notificationCellViewModel(indexPath: indexPath) {
+			cell.configure(viewModel: cellModel)
+		}
 		return cell
+	}
+
+}
+
+extension NotificationsCenterViewController: NSFetchedResultsControllerDelegate {	
+
+	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		notificationsView.collectionView.reloadData()
 	}
 
 }

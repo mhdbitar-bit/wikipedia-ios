@@ -61,7 +61,7 @@ final class NoticeCollectionViewCell: UICollectionViewCell, Themeable {
 	lazy var messageLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
-		label.text = "Cleansweep thanked you for your edit on TurkeytailBrooms.jpg. 1 d ago"
+		label.text = ""
 		label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
 		label.numberOfLines = 0
 		return label
@@ -147,7 +147,8 @@ final class NoticeCollectionViewCell: UICollectionViewCell, Themeable {
 	// MARK: - Configure
 
 	func configure(viewModel: NotificationsCenterCellViewModel) {
-		// configure based on view model
+		let dateString = (viewModel.date as NSDate).wmf_localizedRelativeDateFromMidnightUTCDate()
+		messageLabel.text = viewModel.message.removingHTML + " " + dateString
 	}
 
 	// MARK: - Themeable
@@ -157,6 +158,7 @@ final class NoticeCollectionViewCell: UICollectionViewCell, Themeable {
 		imageView.tintColor = theme.colors.paperBackground
 		projectLabel.textColor = theme.colors.secondaryText
 		projectLabel.layer.borderColor = theme.colors.secondaryText.cgColor
+		messageLabel.textColor = theme.colors.primaryText
 	}
 
 }
