@@ -34,7 +34,10 @@ final class NotificationsCenterViewController: ViewController {
 		notificationsView.apply(theme: theme)
 
 		title = CommonStrings.notificationsCenterTitle
+		edgesForExtendedLayout = .all
+
 		setupBarButtons()
+		bind()
 	}
 
 	// MARK: - Configuration
@@ -47,6 +50,26 @@ final class NotificationsCenterViewController: ViewController {
 		navigationItem.rightBarButtonItem = editButton
 	}
 
+	func bind() {
+		notificationsView.collectionView.dataSource = self
+		notificationsView.collectionView.delegate = self
+	}
+
 	// MARK: - Public
+
+}
+
+extension NotificationsCenterViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		return 5
+	}
+
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NoticeCollectionViewCell.reuseIdentifier, for: indexPath) as! NoticeCollectionViewCell
+
+		cell.apply(theme: theme)
+		return cell
+	}
 
 }

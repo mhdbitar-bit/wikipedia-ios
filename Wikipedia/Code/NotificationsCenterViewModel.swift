@@ -18,4 +18,30 @@ final class NotificationsCenterViewModel: NSObject {
 
 	// Data transformations
 
+	var fetchedResultsController: NSFetchedResultsController<RemoteNotification>? {
+		return remoteNotificationsController.fetchedResultsController()
+	}
+
+}
+
+final class NotificationsCenterCellViewModel {
+
+	let remoteNotification: RemoteNotification
+
+	init(remoteNotification: RemoteNotification) {
+		self.remoteNotification = remoteNotification
+	}
+
+	var message: String {
+		return remoteNotification.messageBody ?? ""
+	}
+
+	var time: Date {
+		return remoteNotification.date ?? Date()
+	}
+
+	var type: RemoteNotificationCategory {
+		return remoteNotification.category
+	}
+
 }
