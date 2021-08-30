@@ -74,15 +74,14 @@ class ArticleURLListViewController: ArticleCollectionViewController, DetailPrese
         navigationController?.popViewController(animated: true)
     }
     
-    
     override func shareArticlePreviewActionSelected(with articleController: ArticleViewController, shareActivityController: UIActivityViewController) {
-        FeedFunnel.shared.logFeedDetailShareTapped(for: feedFunnelContext, index: previewedIndexPath?.item)
+        FeedFunnel.shared.logFeedDetailShareTapped(for: feedFunnelContext, index: previewingIndexPath?.item)
         super.shareArticlePreviewActionSelected(with: articleController, shareActivityController: shareActivityController)
     }
 
     override func readMoreArticlePreviewActionSelected(with articleController: ArticleViewController) {
         articleController.wmf_removePeekableChildViewControllers()
-        push(articleController, context: feedFunnelContext, index: previewedIndexPath?.item, animated: true)
+        push(articleController, context: feedFunnelContext, index: previewingIndexPath?.item, animated: true)
     }
 }
 
@@ -105,17 +104,19 @@ extension ArticleURLListViewController {
     }
 }
 
-// MARK: - UIViewControllerPreviewingDelegate
+//MARK: - UICollectionViewDelegate (Previewing)
 extension ArticleURLListViewController {
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
-        let vc = super.previewingContext(previewingContext, viewControllerForLocation: location)
-        FeedFunnel.shared.logArticleInFeedDetailPreviewed(for: feedFunnelContext, index: previewedIndexPath?.item)
-        return vc
+    override func collectionView(_ collectionView: UICollectionView,
+    willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    animator: UIContextMenuInteractionCommitAnimating) {
+        FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: feedFunnelContext, index: previewingIndexPath?.item, maxViewed: maxViewed)
+        super.collectionView(collectionView, willPerformPreviewActionForMenuWith: configuration, animator: animator)
     }
 
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        super.previewingContext(previewingContext, commit: viewControllerToCommit)
-        FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: feedFunnelContext, index: previewedIndexPath?.item, maxViewed: maxViewed)
+    override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let config = super.collectionView(collectionView, contextMenuConfigurationForItemAt: indexPath, point: point)
+        FeedFunnel.shared.logArticleInFeedDetailPreviewed(for: feedFunnelContext, index: previewingIndexPath?.item)
+        return config
     }
 }
 

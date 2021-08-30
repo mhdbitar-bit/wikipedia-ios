@@ -9,7 +9,9 @@ class ArticleLocationCollectionViewController: ColumnarCollectionViewController,
     let dataStore: MWKDataStore
     fileprivate let locationManager = LocationManager()
     private var feedFunnelContext: FeedFunnelContext?
-    private var previewedIndexPath: IndexPath?
+    
+    private var previewingArticleVC: ArticleViewController?
+    private var previewingIndexPath: IndexPath?
 
     let contentGroupIDURIString: String?
 
@@ -84,7 +86,7 @@ class ArticleLocationCollectionViewController: ColumnarCollectionViewController,
             return
         }
         super.shareArticlePreviewActionSelected(with: articleController, shareActivityController: shareActivityController)
-        FeedFunnel.shared.logFeedDetailShareTapped(for: context, index: previewedIndexPath?.item, midnightUTCDate: context.midnightUTCDate)
+        FeedFunnel.shared.logFeedDetailShareTapped(for: context, index: previewingIndexPath?.item, midnightUTCDate: context.midnightUTCDate)
     }
 
     override func readMoreArticlePreviewActionSelected(with articleController: ArticleViewController) {
@@ -93,7 +95,7 @@ class ArticleLocationCollectionViewController: ColumnarCollectionViewController,
             return
         }
         articleController.wmf_removePeekableChildViewControllers()
-        push(articleController, context: context, index: previewedIndexPath?.item, animated: true)
+        push(articleController, context: context, index: previewingIndexPath?.item, animated: true)
     }
 
     override func saveArticlePreviewActionSelected(with articleController: ArticleViewController, didSave: Bool, articleURL: URL) {
@@ -102,9 +104,9 @@ class ArticleLocationCollectionViewController: ColumnarCollectionViewController,
             return
         }
         if didSave {
-            ReadingListsFunnel.shared.logSaveInFeed(context: context, articleURL: articleURL, index: previewedIndexPath?.item)
+            ReadingListsFunnel.shared.logSaveInFeed(context: context, articleURL: articleURL, index: previewingIndexPath?.item)
         } else {
-            ReadingListsFunnel.shared.logUnsaveInFeed(context: context, articleURL: articleURL, index: previewedIndexPath?.item)
+            ReadingListsFunnel.shared.logUnsaveInFeed(context: context, articleURL: articleURL, index: previewingIndexPath?.item)
         }
     }
 
@@ -190,31 +192,51 @@ extension ArticleLocationCollectionViewController {
     }
 }
 
-// MARK: - UIViewControllerPreviewingDelegate
+// MARK: - UICollectionViewDelegate (Previewing)
 extension ArticleLocationCollectionViewController {
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
-        guard let indexPath = collectionViewIndexPathForPreviewingContext(previewingContext, location: location) else {
-                return nil
+    func collectionView(_ collectionView: UICollectionView,
+    willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    animator: UIContextMenuInteractionCommitAnimating) {
+        
+        guard let previewingArticleVC = previewingArticleVC else {
+            return
         }
-        previewedIndexPath = indexPath
-        let articleURL = self.articleURL(at: indexPath)
+        
+        previewingArticleVC.wmf_removePeekableChildViewControllers()
+        
+        if let context = feedFunnelContext {
+            FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: context, index: previewingIndexPath?.item, maxViewed: maxViewed)
+        }
+        
+        animator.addCompletion {
+            self.push(previewingArticleVC, animated: true)
+        }
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        previewingIndexPath = indexPath
+        let articleURL = articleURL(at: indexPath)
+
         guard let articleViewController = ArticleViewController(articleURL: articleURL, dataStore: dataStore, theme: self.theme) else {
             return nil
         }
         articleViewController.articlePreviewingDelegate = self
         articleViewController.wmf_addPeekableChildViewController(for: articleURL, dataStore: dataStore, theme: theme)
+        
         if let context = feedFunnelContext {
             FeedFunnel.shared.logArticleInFeedDetailPreviewed(for: context, index: indexPath.item)
         }
-        return articleViewController
-    }
-    
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        if let context = feedFunnelContext {
-            FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: context, index: previewedIndexPath?.item, maxViewed: maxViewed)
+
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: { () -> UIViewController? in
+            self.previewingArticleVC = articleViewController
+            return articleViewController
+        }) { (suggestedActions) -> UIMenu? in
+            return nil
         }
-        viewControllerToCommit.wmf_removePeekableChildViewControllers()
-        push(viewControllerToCommit, animated: true)
+        
+        return config
     }
 }
 

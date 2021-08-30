@@ -43,6 +43,8 @@ class ReadingListEntryCollectionViewController: ColumnarCollectionViewController
     
     weak var delegate: ReadingListEntryCollectionViewControllerDelegate?
     
+    private var previewingArticleVC: ArticleViewController?
+    
     init(for readingList: ReadingList, with dataStore: MWKDataStore) {
         self.readingList = readingList
         self.dataStore = dataStore
@@ -421,32 +423,50 @@ extension ReadingListEntryCollectionViewController {
     }
 }
 
-// MARK: - UIViewControllerPreviewingDelegate
+// MARK: - UICollectionViewDelegate (Previewing)
 
 extension ReadingListEntryCollectionViewController {
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+    
+    func collectionView(_ collectionView: UICollectionView,
+    willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    animator: UIContextMenuInteractionCommitAnimating) {
+        
+        guard let previewingArticleVC = previewingArticleVC else {
+            return
+        }
+        
+        previewingArticleVC.wmf_removePeekableChildViewControllers()
+        animator.addCompletion {
+            self.push(previewingArticleVC, animated: true)
+        }
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
         guard !editController.isActive else {
             return nil // don't allow 3d touch when swipe actions are active
         }
         
         guard
-            let indexPath = collectionViewIndexPathForPreviewingContext(previewingContext, location: location),
             let articleURL = articleURL(at: indexPath)
         else {
             return nil
         }
-        
+
         guard let articleViewController = ArticleViewController(articleURL: articleURL, dataStore: dataStore, theme: theme) else {
             return nil
         }
         articleViewController.articlePreviewingDelegate = self
         articleViewController.wmf_addPeekableChildViewController(for: articleURL, dataStore: dataStore, theme: theme)
-        return articleViewController
-    }
-    
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        viewControllerToCommit.wmf_removePeekableChildViewControllers()
-        push(viewControllerToCommit, animated: true)
+
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: { () -> UIViewController? in
+            self.previewingArticleVC = articleViewController
+            return articleViewController
+        }) { (suggestedActions) -> UIMenu? in
+            return nil
+        }
+        return config
     }
 }
 

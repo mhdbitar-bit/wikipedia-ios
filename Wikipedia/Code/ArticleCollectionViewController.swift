@@ -16,6 +16,9 @@ class ArticleCollectionViewController: ColumnarCollectionViewController, Editabl
 
     var feedFunnelContext: FeedFunnelContext?
     
+    private var previewingArticleVC: ArticleViewController?
+    var previewingIndexPath: IndexPath?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         layoutManager.register(ArticleRightAlignedImageCollectionViewCell.self, forCellWithReuseIdentifier: ArticleRightAlignedImageCollectionViewCell.identifier, addPlaceholder: true)
@@ -112,13 +115,11 @@ class ArticleCollectionViewController: ColumnarCollectionViewController, Editabl
     }
 
     var eventLoggingIndex: NSNumber? {
-        guard let index = previewedIndexPath?.item else {
+        guard let index = previewingIndexPath?.item else {
             return nil
         }
         return NSNumber(value: index)
     }
-
-    var previewedIndexPath: IndexPath?
 
     // MARK: - Layout
     
@@ -172,6 +173,7 @@ extension ArticleCollectionViewController {
 
 // MARK: - UICollectionViewDelegate
 extension ArticleCollectionViewController {
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let articleURL = articleURL(at: indexPath) else {
             collectionView.deselectItem(at: indexPath, animated: true)
@@ -188,33 +190,51 @@ extension ArticleCollectionViewController {
     }
 }
 
-// MARK: - UIViewControllerPreviewingDelegate
+// MARK: - UICollectionViewDelegate (Previewing)
+
 extension ArticleCollectionViewController {
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+    func collectionView(_ collectionView: UICollectionView,
+    willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    animator: UIContextMenuInteractionCommitAnimating) {
+        
+        guard let previewingArticleVC = previewingArticleVC else {
+            return
+        }
+        
+        previewingArticleVC.wmf_removePeekableChildViewControllers()
+        animator.addCompletion {
+            self.push(previewingArticleVC, animated: true)
+        }
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
         guard !editController.isActive else {
             return nil // don't allow 3d touch when swipe actions are active
         }
         
         guard
-            let indexPath = collectionViewIndexPathForPreviewingContext(previewingContext, location: location),
             let articleURL = articleURL(at: indexPath)
         else {
             return nil
         }
-
-        previewedIndexPath = indexPath
+        
+        previewingIndexPath = indexPath
 
         guard let articleViewController = ArticleViewController(articleURL: articleURL, dataStore: dataStore, theme: self.theme) else {
             return nil
         }
         articleViewController.articlePreviewingDelegate = self
         articleViewController.wmf_addPeekableChildViewController(for: articleURL, dataStore: dataStore, theme: theme)
-        return articleViewController
-    }
-    
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        viewControllerToCommit.wmf_removePeekableChildViewControllers()
-        push(viewControllerToCommit, animated: true)
+
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: { () -> UIViewController? in
+            self.previewingArticleVC = articleViewController
+            return articleViewController
+        }) { (suggestedActions) -> UIMenu? in
+            return nil
+        }
+        return config
     }
 }
 
