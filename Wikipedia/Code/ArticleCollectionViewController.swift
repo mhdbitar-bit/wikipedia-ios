@@ -202,6 +202,8 @@ extension ArticleCollectionViewController {
         }
         
         previewingArticleVC.wmf_removePeekableChildViewControllers()
+        
+        animator.preferredCommitStyle = .pop
         animator.addCompletion {
             self.push(previewingArticleVC, animated: true)
         }

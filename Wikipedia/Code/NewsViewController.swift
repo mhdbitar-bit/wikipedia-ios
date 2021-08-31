@@ -211,6 +211,7 @@ extension NewsViewController: SideScrollingCollectionViewCellPreviewDelegate {
         
         FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: feedFunnelContext, index: previewingIndex, maxViewed: maxViewed)
         
+        animator.preferredCommitStyle = .pop
         animator.addCompletion {
             self.push(previewingArticleVC, animated: true)
         }

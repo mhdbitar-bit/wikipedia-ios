@@ -208,6 +208,7 @@ extension ArticleLocationCollectionViewController {
             FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: context, index: previewingIndexPath?.item, maxViewed: maxViewed)
         }
         
+        animator.preferredCommitStyle = .pop
         animator.addCompletion {
             self.push(previewingArticleVC, animated: true)
         }

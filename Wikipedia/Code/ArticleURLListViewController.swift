@@ -108,6 +108,7 @@ extension ArticleURLListViewController {
 extension ArticleURLListViewController {
     override func collectionView(_ collectionView: UICollectionView,
     willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    
     animator: UIContextMenuInteractionCommitAnimating) {
         FeedFunnel.shared.logArticleInFeedDetailReadingStarted(for: feedFunnelContext, index: previewingIndexPath?.item, maxViewed: maxViewed)
         super.collectionView(collectionView, willPerformPreviewActionForMenuWith: configuration, animator: animator)

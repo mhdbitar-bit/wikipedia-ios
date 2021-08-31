@@ -152,6 +152,8 @@ extension ArticleViewController: UIContextMenuInteractionDelegate {
     }
 
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        
+        animator.preferredCommitStyle = .pop
         animator.addCompletion {
             if let _ = self.mediaList {
                 self.showLeadImage()

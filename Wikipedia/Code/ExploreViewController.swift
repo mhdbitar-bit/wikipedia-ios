@@ -1004,6 +1004,7 @@ extension ExploreViewController: ExploreCardViewControllerPreviewDelegate {
             
         }
         
+        animator.preferredCommitStyle = .pop
         animator.addCompletion(animationCompletionBlock)
     }
 }
