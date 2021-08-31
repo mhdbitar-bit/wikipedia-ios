@@ -7,6 +7,12 @@ protocol ExploreCardViewControllerDelegate {
     func exploreCardViewController(_ exploreCardViewController: ExploreCardViewController, didSelectItemAtIndexPath: IndexPath)
 }
 
+protocol ExploreCardViewControllerPreviewDelegate: AnyObject {
+    func exploreCardViewController(_ exploreCardViewController: ExploreCardViewController, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+                        animator: UIContextMenuInteractionCommitAnimating)
+    func exploreCardViewController(_ exploreCardViewController: ExploreCardViewController, contextMenuConfigurationForIndexPath indexPath: IndexPath) -> UIContextMenuConfiguration?
+}
+
 struct ExploreSaveButtonUserInfo {
     let indexPath: IndexPath
     let kind: WMFContentGroupKind?
@@ -16,6 +22,7 @@ struct ExploreSaveButtonUserInfo {
 class ExploreCardViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, CardContent, ColumnarCollectionViewLayoutDelegate {
     
     weak var delegate: (ExploreCardViewControllerDelegate & UIViewController)?
+    weak var previewDelegate: ExploreCardViewControllerPreviewDelegate?
     
     lazy var layoutManager: ColumnarCollectionViewLayoutManager = {
         return ColumnarCollectionViewLayoutManager(view: view, collectionView: collectionView)
@@ -426,6 +433,25 @@ class ExploreCardViewController: UIViewController, UICollectionViewDataSource, U
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         delegate?.exploreCardViewController(self, didSelectItemAtIndexPath: indexPath)
+    }
+    
+    //MARK: UICollectionViewDelegate (Previewing)
+
+    func collectionView(_ collectionView: UICollectionView,
+    willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    animator: UIContextMenuInteractionCommitAnimating) {
+        previewDelegate?.exploreCardViewController(self, willPerformPreviewActionForMenuWith: configuration, animator: animator)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard
+            let delegate = previewDelegate
+        else {
+            return nil
+        }
+        
+        return delegate.exploreCardViewController(self, contextMenuConfigurationForIndexPath: indexPath)
     }
     
     // MARK - ColumnarCollectionViewLayoutDelegate

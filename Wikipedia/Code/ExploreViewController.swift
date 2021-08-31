@@ -6,6 +6,8 @@ class ExploreViewController: ColumnarCollectionViewController, ExploreCardViewCo
 
     public var presentedContentGroupKey: String?
     public var shouldRestoreScrollPosition = false
+    
+    private var previewing: (context: FeedFunnelContext?, indexPath: IndexPath?, viewController: UIViewController?)
 
     // MARK - UIViewController
     
@@ -426,6 +428,7 @@ class ExploreViewController: ColumnarCollectionViewController, ExploreCardViewCo
         }
         cell.apply(theme: theme)
         configure(cell: cell, forItemAt: indexPath, layoutOnly: false)
+        
         return cell
     }
     
@@ -503,6 +506,7 @@ class ExploreViewController: ColumnarCollectionViewController, ExploreCardViewCo
     func createNewCardVCFor(_ cell: ExploreCardCollectionViewCell) -> ExploreCardViewController {
         let cardVC = ExploreCardViewController()
         cardVC.delegate = self
+        cardVC.previewDelegate = self
         cardVC.dataStore = dataStore
         cardVC.view.autoresizingMask = []
         addChild(cardVC)
@@ -692,76 +696,26 @@ class ExploreViewController: ColumnarCollectionViewController, ExploreCardViewCo
     }
 
     var eventLoggingLabel: EventLoggingLabel? {
-        return previewed.context?.label
-    }
-
-    // MARK: Peek & Pop
-
-    private var previewed: (context: FeedFunnelContext?, indexPath: IndexPath?)
-
-    override func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
-        guard
-            let indexPath = collectionViewIndexPathForPreviewingContext(previewingContext, location: location),
-            let cell = collectionView.cellForItem(at: indexPath) as? ExploreCardCollectionViewCell,
-            let vc = cell.cardContent as? ExploreCardViewController,
-            let contentGroup = vc.contentGroup
-        else {
-            return nil
-        }
-
-        previewed.context = FeedFunnelContext(contentGroup)
-        
-        let convertedLocation = view.convert(location, to: vc.collectionView)
-        if let indexPath = vc.collectionView.indexPathForItem(at: convertedLocation), let cell = vc.collectionView.cellForItem(at: indexPath), let viewControllerToCommit = contentGroup.detailViewControllerForPreviewItemAtIndex(indexPath.row, dataStore: dataStore, theme: theme) {
-            previewingContext.sourceRect = view.convert(cell.bounds, from: cell)
-            if let potd = viewControllerToCommit as? WMFImageGalleryViewController {
-                potd.setOverlayViewTopBarHidden(true)
-            } else if let avc = viewControllerToCommit as? ArticleViewController {
-                avc.articlePreviewingDelegate = self
-                avc.wmf_addPeekableChildViewController(for: avc.articleURL, dataStore: dataStore, theme: theme)
-            }
-
-            previewed.indexPath = indexPath
-            FeedFunnel.shared.logFeedCardPreviewed(for: previewed.context, index: indexPath.item)
-
-            return viewControllerToCommit
-        } else if contentGroup.contentGroupKind != .random {
-            return contentGroup.detailViewControllerWithDataStore(dataStore, theme: theme)
-        } else {
-            return nil
-        }
+        return previewing.context?.label
     }
     
-    open override func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        if let potd = viewControllerToCommit as? WMFImageGalleryViewController {
-            potd.setOverlayViewTopBarHidden(false)
-            present(potd, animated: false)
-            FeedFunnel.shared.logFeedCardOpened(for: previewed.context)
-        } else if let avc = viewControllerToCommit as? ArticleViewController {
-            avc.wmf_removePeekableChildViewControllers()
-            push(avc, context: previewed.context, index: previewed.indexPath?.item, animated: false)
-        } else {
-            push(viewControllerToCommit, context: previewed.context, index: previewed.indexPath?.item, animated: true)
-        }
-    }
-
     // MARK: ArticlePreviewingDelegate
     
     override func shareArticlePreviewActionSelected(with articleController: ArticleViewController, shareActivityController: UIActivityViewController) {
         super.shareArticlePreviewActionSelected(with: articleController, shareActivityController: shareActivityController)
-        FeedFunnel.shared.logFeedShareTapped(for: previewed.context, index: previewed.indexPath?.item)
+        FeedFunnel.shared.logFeedShareTapped(for: previewing.context, index: previewing.indexPath?.item)
     }
 
     override func readMoreArticlePreviewActionSelected(with articleController: ArticleViewController) {
         articleController.wmf_removePeekableChildViewControllers()
-        push(articleController, context: previewed.context, index: previewed.indexPath?.item, animated: true)
+        push(articleController, context: previewing.context, index: previewing.indexPath?.item, animated: true)
     }
 
     override func saveArticlePreviewActionSelected(with articleController: ArticleViewController, didSave: Bool, articleURL: URL) {
         if didSave {
-            ReadingListsFunnel.shared.logSaveInFeed(context: previewed.context, articleURL: articleURL, index: previewed.indexPath?.item)
+            ReadingListsFunnel.shared.logSaveInFeed(context: previewing.context, articleURL: articleURL, index: previewing.indexPath?.item)
         } else {
-            ReadingListsFunnel.shared.logUnsaveInFeed(context: previewed.context, articleURL: articleURL, index: previewed.indexPath?.item)
+            ReadingListsFunnel.shared.logUnsaveInFeed(context: previewing.context, articleURL: articleURL, index: previewing.indexPath?.item)
         }
     }
 
@@ -988,7 +942,70 @@ extension ExploreViewController: ExploreCardCollectionViewCellDelegate {
         }
         save()
     }
+}
+
+extension ExploreViewController: ExploreCardViewControllerPreviewDelegate {
     
+    func exploreCardViewController(_ exploreCardViewController: ExploreCardViewController, contextMenuConfigurationForIndexPath indexPath: IndexPath) -> UIContextMenuConfiguration? {
+        guard let contentGroup = exploreCardViewController.contentGroup else {
+            return nil
+        }
+        
+        previewing.context = FeedFunnelContext(contentGroup)
+        
+        if let viewControllerToCommit = contentGroup.detailViewControllerForPreviewItemAtIndex(indexPath.row, dataStore: dataStore, theme: theme) {
+            if let potd = viewControllerToCommit as? WMFImageGalleryViewController {
+                potd.setOverlayViewTopBarHidden(true)
+            } else if let avc = viewControllerToCommit as? ArticleViewController {
+                avc.articlePreviewingDelegate = self
+                avc.wmf_addPeekableChildViewController(for: avc.articleURL, dataStore: dataStore, theme: theme)
+            }
+
+            previewing.indexPath = indexPath
+            FeedFunnel.shared.logFeedCardPreviewed(for: previewing.context, index: indexPath.item)
+
+            previewing.viewController = viewControllerToCommit
+        } else if contentGroup.contentGroupKind != .random {
+            previewing.viewController = contentGroup.detailViewControllerWithDataStore(dataStore, theme: theme)
+        }
+
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: {[weak self] () -> UIViewController? in
+            return self?.previewing.viewController
+        }) { (suggestedActions) -> UIMenu? in
+            return nil
+        }
+        return config
+    }
+    
+    func exploreCardViewController(_ exploreCardViewController: ExploreCardViewController, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        guard let previewingViewController = previewing.viewController else {
+            return
+        }
+        
+        var animationCompletionBlock: (() -> Void)
+        
+        if let potd = previewingViewController as? WMFImageGalleryViewController {
+            potd.setOverlayViewTopBarHidden(false)
+            animationCompletionBlock = { [weak self] in
+                self?.present(potd, animated: false)
+            }
+            FeedFunnel.shared.logFeedCardOpened(for: previewing.context)
+        } else if let avc = previewingViewController as? ArticleViewController {
+            avc.wmf_removePeekableChildViewControllers()
+            animationCompletionBlock = { [weak self] in
+                guard let self = self else { return }
+                self.push(avc, context: self.previewing.context, index: self.previewing.indexPath?.item, animated: false)
+            }
+        } else {
+            animationCompletionBlock = { [weak self] in
+                guard let self = self else { return }
+                self.push(previewingViewController, context: self.previewing.context, index: self.previewing.indexPath?.item, animated: true)
+            }
+            
+        }
+        
+        animator.addCompletion(animationCompletionBlock)
+    }
 }
 
 // MARK: - EventLoggingSearchSourceProviding
