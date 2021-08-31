@@ -563,7 +563,8 @@ extension ExploreCardViewController: ActionDelegate, ShareableArticlesProvider {
     }
 }
 
-extension ExploreCardViewController: SideScrollingCollectionViewCellDelegate {
+extension ExploreCardViewController: SideScrollingCollectionViewCellSelectionDelegate {
+    
     func sideScrollingCollectionViewCell(_ sideScrollingCollectionViewCell: SideScrollingCollectionViewCell, didSelectArticleWithURL articleURL: URL, at indexPath: IndexPath) {
         navigate(to: articleURL)
     }

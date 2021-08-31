@@ -8,8 +8,14 @@ internal struct CellArticle {
     let imageURL: URL?
 }
 
-public protocol SideScrollingCollectionViewCellDelegate: AnyObject {
+public protocol SideScrollingCollectionViewCellSelectionDelegate: AnyObject {
     func sideScrollingCollectionViewCell(_ sideScrollingCollectionViewCell: SideScrollingCollectionViewCell, didSelectArticleWithURL articleURL: URL, at indexPath: IndexPath)
+}
+
+public protocol SideScrollingCollectionViewCellPreviewDelegate: AnyObject {
+    func sideScrollingCollectionViewCell(_ sideScrollingCollectionViewCell: SideScrollingCollectionViewCell, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+                        animator: UIContextMenuInteractionCommitAnimating)
+    func sideScrollingCollectionViewCell(_ sideScrollingCollectionViewCell: SideScrollingCollectionViewCell, contextMenuConfigurationForArticleURL articleURL: URL, indexPath: IndexPath) -> UIContextMenuConfiguration?
 }
 
 
@@ -21,7 +27,8 @@ open class SideScrollingCollectionViewCell: CollectionViewCell, SubCellProtocol 
     static let articleCellIdentifier = "ArticleRightAlignedImageCollectionViewCell"
     var theme: Theme = Theme.standard
     
-    public weak var selectionDelegate: SideScrollingCollectionViewCellDelegate?
+    public weak var selectionDelegate: SideScrollingCollectionViewCellSelectionDelegate?
+    public weak var previewDelegate: SideScrollingCollectionViewCellPreviewDelegate?
     public let imageView = UIImageView()
     public let titleLabel = UILabel()
     public let subTitleLabel = UILabel()
@@ -176,6 +183,8 @@ open class SideScrollingCollectionViewCell: CollectionViewCell, SubCellProtocol 
     }
 }
 
+//MARK: UICollectionViewDelegate
+
 extension SideScrollingCollectionViewCell: UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedArticle = articles[indexPath.item]
@@ -183,6 +192,28 @@ extension SideScrollingCollectionViewCell: UICollectionViewDelegate {
             return
         }
         selectionDelegate?.sideScrollingCollectionViewCell(self, didSelectArticleWithURL: articleURL, at: indexPath)
+    }
+}
+
+//MARK: UICollectionViewDelegate (Previewing)
+
+extension SideScrollingCollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView,
+    willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+    animator: UIContextMenuInteractionCommitAnimating) {
+        previewDelegate?.sideScrollingCollectionViewCell(self, willPerformPreviewActionForMenuWith: configuration, animator: animator)
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard
+            let articleURL = articles[safeIndex: indexPath.item]?.articleURL,
+            let delegate = previewDelegate
+        else {
+            return nil
+        }
+        
+        return delegate.sideScrollingCollectionViewCell(self, contextMenuConfigurationForArticleURL: articleURL, indexPath: indexPath)
     }
 }
 
