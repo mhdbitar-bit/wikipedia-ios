@@ -4,7 +4,7 @@ import Foundation
 
 class RemoteNotificationsRefreshOperation: RemoteNotificationsOperation {
     
-    private let project: RemoteNotificationsProject
+    let project: RemoteNotificationsProject
     private let cookieDomain: String
     
     init(with apiController: RemoteNotificationsAPIController, modelController: RemoteNotificationsModelController, project: RemoteNotificationsProject, cookieDomain: String) {
@@ -66,7 +66,7 @@ class RemoteNotificationsRefreshOperation: RemoteNotificationsOperation {
         }
     }
     
-    private func shouldContinueToPage(moc: NSManagedObjectContext, lastNotification: RemoteNotificationsAPIController.NotificationsResult.Notification) -> Bool {
+    func shouldContinueToPage(moc: NSManagedObjectContext, lastNotification: RemoteNotificationsAPIController.NotificationsResult.Notification) -> Bool {
         
         var shouldContinueToPage = true
         

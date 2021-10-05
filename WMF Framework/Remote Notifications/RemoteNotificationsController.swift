@@ -1,5 +1,6 @@
 import CocoaLumberjackSwift
 
+
 @objc public final class RemoteNotificationsController: NSObject {
     private let operationsController: RemoteNotificationsOperationsController
     
@@ -7,7 +8,7 @@ import CocoaLumberjackSwift
         return operationsController.viewContext
     }
     
-    @objc public required init(session: Session, configuration: Configuration, preferredLanguageCodesProvider: WMFPreferredLanguageInfoProvider) {
+    @objc public required init(session: Session, configuration: Configuration, preferredLanguageCodesProvider: WMFTestingPreferredLanguageInfoProvider) {
         operationsController = RemoteNotificationsOperationsController(session: session, configuration: configuration, preferredLanguageCodesProvider: preferredLanguageCodesProvider)
         super.init()
     }

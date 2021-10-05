@@ -556,6 +556,8 @@
 		6782DC182347EE59003FA21B /* DiffListChangeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6782DC162347EE59003FA21B /* DiffListChangeCell.xib */; };
 		6782DC192347EE59003FA21B /* DiffListChangeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6782DC162347EE59003FA21B /* DiffListChangeCell.xib */; };
 		6782DC1A2347EE5A003FA21B /* DiffListChangeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6782DC162347EE59003FA21B /* DiffListChangeCell.xib */; };
+		678492B1270CAD8F003C2072 /* RemoteNotificationsTestingAPIController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678492B0270CAD8F003C2072 /* RemoteNotificationsTestingAPIController.swift */; };
+		678492B3270CF709003C2072 /* RemoteNotificationsTestingRefreshOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678492B2270CF709003C2072 /* RemoteNotificationsTestingRefreshOperation.swift */; };
 		67861A14223C13820044F69D /* WMFFindAndReplaceKeyboardBar.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67E069072238A5A5008550AC /* WMFFindAndReplaceKeyboardBar.xib */; };
 		67861A15223C13820044F69D /* WMFFindAndReplaceKeyboardBar.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67E069072238A5A5008550AC /* WMFFindAndReplaceKeyboardBar.xib */; };
 		67861A16223C13820044F69D /* WMFFindAndReplaceKeyboardBar.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67E069072238A5A5008550AC /* WMFFindAndReplaceKeyboardBar.xib */; };
@@ -3844,6 +3846,8 @@
 		6782DC0A23453D7D003FA21B /* DiffHeaderCompareItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffHeaderCompareItemView.swift; sourceTree = "<group>"; };
 		6782DC102346920B003FA21B /* DiffContainerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffContainerViewModel.swift; sourceTree = "<group>"; };
 		6782DC162347EE59003FA21B /* DiffListChangeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DiffListChangeCell.xib; sourceTree = "<group>"; };
+		678492B0270CAD8F003C2072 /* RemoteNotificationsTestingAPIController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsTestingAPIController.swift; sourceTree = "<group>"; };
+		678492B2270CF709003C2072 /* RemoteNotificationsTestingRefreshOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsTestingRefreshOperation.swift; sourceTree = "<group>"; };
 		6789FA2D22E7790900E43842 /* TalkPage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TalkPage+Extensions.swift"; sourceTree = "<group>"; };
 		678C7C2923BE67F0001AC4D5 /* CacheController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheController.swift; sourceTree = "<group>"; };
 		678C7C2D23BE705C001AC4D5 /* CacheDBWriting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheDBWriting.swift; sourceTree = "<group>"; };
@@ -6990,6 +6994,7 @@
 				7A0312FA215402FD0095C953 /* RemoteNotificationsImportOperation.swift */,
 				7A0312FE215422960095C953 /* RemoteNotificationsMarkAsReadOperation.swift */,
 				7A5357AA215552E7007998DC /* RemoteNotificationsOperation.swift */,
+				678492B2270CF709003C2072 /* RemoteNotificationsTestingRefreshOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -7082,6 +7087,7 @@
 			children = (
 				7A52C01A2150389D00A3A4A1 /* RemoteNotificationsController.swift */,
 				7A0312F82153DEB30095C953 /* RemoteNotificationsAPIController.swift */,
+				678492B0270CAD8F003C2072 /* RemoteNotificationsTestingAPIController.swift */,
 				7A03130221542F5C0095C953 /* RemoteNotificationsOperationsController.swift */,
 				7A03130121542F250095C953 /* Model */,
 				7A03130021542F120095C953 /* Operations */,
@@ -11367,6 +11373,7 @@
 				7A52C01B2150389D00A3A4A1 /* RemoteNotificationsController.swift in Sources */,
 				0E728D451DAEEE880074EB4B /* CLLocation+WMFBearing.m in Sources */,
 				832B2B8423D9F9420087EB5F /* NSRegularExpression+Utilities.swift in Sources */,
+				678492B1270CAD8F003C2072 /* RemoteNotificationsTestingAPIController.swift in Sources */,
 				D8AC391E1D6F2328007E3C14 /* UIScreen+WMFImageWidth.m in Sources */,
 				D84C35F51F323CE800895FA1 /* SaveButton.swift in Sources */,
 				678C7C2E23BE705C001AC4D5 /* CacheDBWriting.swift in Sources */,
@@ -11587,6 +11594,7 @@
 				70B7982B25758E6D00C10BCA /* EPEventRecord+CoreDataClass.swift in Sources */,
 				D844D9A71D6CB7280042D692 /* MWKList.m in Sources */,
 				8380753B20DC7D04000D222C /* ColumnarCollectionViewLayoutMetrics.swift in Sources */,
+				678492B3270CF709003C2072 /* RemoteNotificationsTestingRefreshOperation.swift in Sources */,
 				D82CA3332020E8D8005C2D5C /* ReadingListsSyncOperation.swift in Sources */,
 				8387CE9024C99C2600439D93 /* WMFMTLModel.m in Sources */,
 				007B5FC526FA40F100180FF8 /* RemoteNotificationType.swift in Sources */,

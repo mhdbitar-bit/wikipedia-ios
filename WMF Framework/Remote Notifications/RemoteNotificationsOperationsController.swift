@@ -4,7 +4,7 @@ class RemoteNotificationsOperationsController: NSObject {
     private let apiController: RemoteNotificationsAPIController
     private let modelController: RemoteNotificationsModelController?
     private let operationQueue: OperationQueue
-    private let preferredLanguageCodesProvider: WMFPreferredLanguageInfoProvider
+    private let preferredLanguageCodesProvider: WMFTestingPreferredLanguageInfoProvider
     private var isImporting = false
     private var isRefreshing = false
     
@@ -20,8 +20,12 @@ class RemoteNotificationsOperationsController: NSObject {
         }
     }
 
-    required init(session: Session, configuration: Configuration, preferredLanguageCodesProvider: WMFPreferredLanguageInfoProvider) {
+    required init(session: Session, configuration: Configuration, preferredLanguageCodesProvider: WMFTestingPreferredLanguageInfoProvider) {
+        #if DEBUG
+        apiController = RemoteNotificationsTestingAPIController(session: session, configuration: configuration)
+        #else
         apiController = RemoteNotificationsAPIController(session: session, configuration: configuration)
+        #endif
         var modelControllerInitializationError: Error?
         modelController = RemoteNotificationsModelController(&modelControllerInitializationError)
         if let modelControllerInitializationError = modelControllerInitializationError {
@@ -74,7 +78,7 @@ class RemoteNotificationsOperationsController: NSObject {
         
         isImporting = true
         
-        preferredLanguageCodesProvider.getPreferredLanguageCodes({ [weak self] (preferredLanguageCodes) in
+        preferredLanguageCodesProvider.getTestingPreferredLanguageCodes({ [weak self] (preferredLanguageCodes) in
             
             guard let self = self else {
                 return
@@ -141,7 +145,7 @@ class RemoteNotificationsOperationsController: NSObject {
         
         self.isRefreshing = true
         
-        preferredLanguageCodesProvider.getPreferredLanguageCodes({ [weak self] (preferredLanguageCodes) in
+        preferredLanguageCodesProvider.getTestingPreferredLanguageCodes({ [weak self] (preferredLanguageCodes) in
             
             guard let self = self else {
                 return
@@ -157,7 +161,11 @@ class RemoteNotificationsOperationsController: NSObject {
             var operations: [RemoteNotificationsRefreshOperation] = []
             for project in projects {
                 
+                #if DEBUG
+                let operation = RemoteNotificationsTestingRefreshOperation(with: self.apiController, modelController: modelController, project: project, cookieDomain: self.cookieDomainForProject(project))
+                #else
                 let operation = RemoteNotificationsRefreshOperation(with: self.apiController, modelController: modelController, project: project, cookieDomain: self.cookieDomainForProject(project))
+                #endif
                 operations.append(operation)
             }
             

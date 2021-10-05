@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, WMFPreferredLanguagesChangeType) {
     WMFPreferredLanguagesChangeTypeReorder
 };
 
-@interface MWKLanguageLinkController : NSObject <MWKLanguageFilterDataSource, WMFPreferredLanguageInfoProvider>
+@interface MWKLanguageLinkController : NSObject <MWKLanguageFilterDataSource, WMFPreferredLanguageInfoProvider, WMFTestingPreferredLanguageInfoProvider>
 
 /// Initializes `MWKLanguageLinkController` with the `NSManagedObjectContext` used for storage
 - (instancetype)initWithManagedObjectContext:(NSManagedObjectContext *)moc;

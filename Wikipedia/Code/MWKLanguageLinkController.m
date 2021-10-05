@@ -17,6 +17,7 @@ static NSString *const WMFPreviousLanguagesKey = @"WMFPreviousSelectedLanguagesK
 
 @property (weak, nonatomic) NSManagedObjectContext *moc;
 @property (nullable, copy, nonatomic) NSArray<MWKLanguageLink *> *cachedPreferredLanguages;
+@property (nullable, copy, nonatomic) NSArray<MWKLanguageLink *> *testingCachedPreferredLanguages;
 
 @end
 
@@ -26,6 +27,7 @@ static NSString *const WMFPreviousLanguagesKey = @"WMFPreviousSelectedLanguagesK
     if (self = [super init]) {
         self.moc = moc;
         self.cachedPreferredLanguages = nil;
+        self.testingCachedPreferredLanguages = nil;
     }
     return self;
 }
@@ -117,6 +119,21 @@ static NSString *const WMFPreviousLanguagesKey = @"WMFPreviousSelectedLanguagesK
     return [self.preferredLanguages firstObject];
 }
 
+- (NSArray<MWKLanguageLink *> *)testingPreferredLanguages {
+    // Without caching, every call does a database fetch and lookup through allLanguages
+    // even though the array contents change only when user updates preferred language settings
+    if (!self.testingCachedPreferredLanguages) {
+        NSArray *preferredLanguageCodes = [self testingReadPreferredLanguageCodes];
+        self.testingCachedPreferredLanguages = [preferredLanguageCodes wmf_mapAndRejectNil:^id(NSString *isoLanguageCode) {
+            NSString *contentLanguageCode = [MWKLanguageLinkController languageCodeForISOLanguageCode:isoLanguageCode];
+            return [self.allLanguages wmf_match:^BOOL(MWKLanguageLink *languageLink) {
+                return [languageLink.contentLanguageCode isEqualToString:contentLanguageCode];
+            }];
+        }];
+    }
+    return self.testingCachedPreferredLanguages;
+}
+
 - (NSArray<MWKLanguageLink *> *)preferredLanguages {
     // Without caching, every call does a database fetch and lookup through allLanguages
     // even though the array contents change only when user updates preferred language settings
@@ -182,12 +199,41 @@ static NSString *const WMFPreviousLanguagesKey = @"WMFPreviousSelectedLanguagesK
     return [self readSavedPreferredLanguageCodesInManagedObjectContext:self.moc];
 }
 
+- (NSArray<NSString *> *)testingReadSavedPreferredLanguageCodes {
+    return [self testingReadSavedPreferredLanguageCodesInManagedObjectContext:self.moc];
+}
+
+-(NSArray<NSString *> *)testingReadSavedPreferredLanguageCodesInManagedObjectContext:(NSManagedObjectContext *)moc {
+    __block NSArray<NSString *> *preferredLanguages = nil;
+    [moc performBlockAndWait:^{
+        preferredLanguages = @[@"en", @"fr", @"de", @"es", @"test", @"zh-yue", @"ar"] ?: @[];
+    }];
+    return preferredLanguages;
+}
+
 - (NSArray<NSString *> *)readSavedPreferredLanguageCodesInManagedObjectContext:(NSManagedObjectContext *)moc {
     __block NSArray<NSString *> *preferredLanguages = nil;
     [moc performBlockAndWait:^{
         preferredLanguages = [moc wmf_arrayValueForKey:WMFPreviousLanguagesKey] ?: @[];
     }];
     return preferredLanguages;
+}
+
+- (NSArray<NSString *> *)testingReadPreferredLanguageCodes {
+    NSMutableArray<NSString *> *preferredLanguages = [[self testingReadSavedPreferredLanguageCodes] mutableCopy];
+
+    if (preferredLanguages.count == 0) {
+        NSArray<NSString *> *osLanguages = NSLocale.wmf_preferredWikipediaLanguageCodes;
+        [osLanguages enumerateObjectsWithOptions:0
+                                      usingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+                                          if (![preferredLanguages containsObject:obj]) {
+                                              [preferredLanguages addObject:obj];
+                                          }
+                                      }];
+    }
+    return [preferredLanguages wmf_reject:^BOOL(id obj) {
+        return [obj isEqual:[NSNull null]];
+    }];
 }
 
 - (NSArray<NSString *> *)readPreferredLanguageCodes {
@@ -224,6 +270,7 @@ static NSString *const WMFPreviousLanguagesKey = @"WMFPreviousSelectedLanguagesK
     // Even when supressing external notifications during language variant migration,
     // the internal cache always needs to be refreshed when new preferred language codes are saved.
     self.cachedPreferredLanguages = nil;
+    self.testingCachedPreferredLanguages = nil;
 
     // Send notifications only if there is a change type and changed language
     // Used to avoid sending notifications during language variant migration
@@ -243,8 +290,27 @@ static NSString *const WMFPreviousLanguagesKey = @"WMFPreviousSelectedLanguagesK
         [self.moc wmf_setValue:nil forKey:WMFPreviousLanguagesKey];
     }];
     self.cachedPreferredLanguages = nil;
+    self.testingCachedPreferredLanguages = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:MWKLanguageFilterDataSourceLanguagesDidChangeNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:WMFPreferredLanguagesDidChangeNotification object:self];
+}
+
+- (void)getTestingPreferredContentLanguageCodes:(void (^)(NSArray<NSString *> *))completion {
+    [self.moc performBlock:^{
+        completion([self testingReadPreferredLanguageCodes]);
+    }];
+}
+
+- (void)getTestingPreferredLanguageCodes:(void (^)(NSArray<NSString *> *))completion {
+    [self.moc performBlock:^{
+        NSArray<MWKLanguageLink *> *preferredLanguages = [self testingPreferredLanguages];
+        NSMutableSet<NSString *> *preferredLanguageCodes = [[NSMutableSet alloc] init];
+        for (MWKLanguageLink *language in preferredLanguages) {
+            [preferredLanguageCodes addObject:language.languageCode];
+        }
+
+        completion(preferredLanguageCodes.allObjects);
+    }];
 }
 
 - (void)getPreferredContentLanguageCodes:(void (^)(NSArray<NSString *> *))completion {

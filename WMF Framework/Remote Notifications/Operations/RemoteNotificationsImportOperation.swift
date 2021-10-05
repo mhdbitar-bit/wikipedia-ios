@@ -11,7 +11,7 @@ class RemoteNotificationsImportOperation: RemoteNotificationsOperation {
         }
     }
     
-    private let project: RemoteNotificationsProject
+    let project: RemoteNotificationsProject
     private let cookieDomain: String
     init(with apiController: RemoteNotificationsAPIController, modelController: RemoteNotificationsModelController, project: RemoteNotificationsProject, cookieDomain: String) {
         self.project = project
@@ -67,12 +67,20 @@ class RemoteNotificationsImportOperation: RemoteNotificationsOperation {
                         return
                     }
                     
+                    #if DEBUG
+                    guard let newContinueId = result?.continueId else {
+                        self.saveLanguageAsImportCompleted()
+                        self.finish()
+                        return
+                    }
+                    #else
                     guard let newContinueId = result?.continueId,
                           newContinueId != continueId else {
                         self.saveLanguageAsImportCompleted()
                         self.finish()
                         return
                     }
+                    #endif
                     
                     self.saveContinueId(newContinueId)
                     self.importNotifications(continueId: newContinueId)

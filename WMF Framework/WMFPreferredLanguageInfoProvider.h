@@ -7,5 +7,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getPreferredLanguageCodes:(void (^)(NSArray<NSString *> *))completion;
 
 @end
+
+@protocol WMFTestingPreferredLanguageInfoProvider
+
+- (void)getTestingPreferredContentLanguageCodes:(void (^)(NSArray<NSString *> *))completion;
+- (void)getTestingPreferredLanguageCodes:(void (^)(NSArray<NSString *> *))completion;
+
+@end
 NS_ASSUME_NONNULL_END
 #endif /* WMFPreferredLanguageCodesProviding_h */
