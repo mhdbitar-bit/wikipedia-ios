@@ -110,7 +110,7 @@ private extension NotificationsCenterViewController {
                       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NotificationsCenterCell.reuseIdentifier, for: indexPath) as? NotificationsCenterCell else {
                     return nil
                 }
-                cell.configure(viewModel: viewModel, theme: self.theme)
+                cell.configure(viewModel: viewModel, theme: self.theme, indexPath: indexPath)
                 cell.delegate = self
                 return cell
             })
@@ -118,10 +118,13 @@ private extension NotificationsCenterViewController {
     }
     
     func applySnapshot(cellViewModels: [NotificationsCenterCellViewModel], animatingDifferences: Bool = true) {
-        var snapshot = Snapshot()
-        snapshot.appendSections([.main])
-        snapshot.appendItems(cellViewModels)
-        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        DispatchQueue.main.async {
+            var snapshot = Snapshot()
+            snapshot.appendSections([.main])
+            snapshot.appendItems(cellViewModels)
+            print("🌀\(Thread.isMainThread)")
+            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        }
     }
 }
 
@@ -140,7 +143,7 @@ extension NotificationsCenterViewController: NotificationCenterViewModelDelegate
                 continue
             }
             
-            cell.configure(viewModel: viewModel, theme: theme)
+            cell.configure(viewModel: viewModel, theme: theme, indexPath: nil)
         }
     }
 }

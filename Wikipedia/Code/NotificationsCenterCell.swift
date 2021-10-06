@@ -13,6 +13,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
 
 	fileprivate var theme: Theme = .light
 	private(set) weak var viewModel: NotificationsCenterCellViewModel?
+    private(set) var indexPath: IndexPath?
     weak var delegate: NotificationsCenterCellDelegate?
 
 	// MARK: - UI Elements
@@ -292,7 +293,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
 
 	// MARK: - Public
 
-	func configure(viewModel: NotificationsCenterCellViewModel, theme: Theme) {
+    func configure(viewModel: NotificationsCenterCellViewModel, theme: Theme, indexPath: IndexPath?) {
 		self.viewModel = viewModel
 		self.theme = theme
 
@@ -300,6 +301,16 @@ final class NotificationsCenterCell: UICollectionViewCell {
         updateLabels(forViewModel: viewModel)
         updateProject(forViewModel: viewModel)
 		updateMetaButton(forViewModel: viewModel)
+        
+        if indexPath == nil {
+            return
+        }
+        
+        
+        self.indexPath = indexPath
+        projectSourceLabel.label.text = "\(indexPath?.item ?? 0)"
+        projectSourceLabel.isHidden = false
+        projectSourceImage.isHidden = true
 	}
 
 	func updateCellStyle(forDisplayState displayState: NotificationsCenterCellDisplayState) {

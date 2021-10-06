@@ -19,7 +19,7 @@ class RemoteNotificationsRefreshOperation: RemoteNotificationsOperation {
     
     private func fetchNewNotifications(continueId: String? = nil) {
         
-        apiController.getAllNotifications(from: project, continueId: continueId) { [weak self] result, error in
+        fetchAllNotifications(project: project, continueId: continueId) { [weak self] result, error in
             
             guard let self = self else {
                 return
@@ -64,6 +64,10 @@ class RemoteNotificationsRefreshOperation: RemoteNotificationsOperation {
                 self.finish(with: error)
             }
         }
+    }
+    
+    func fetchAllNotifications(project: RemoteNotificationsProject, continueId: String?, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
+        apiController.getAllNotifications(from: project, continueId: continueId, fromRefresh: false, completion: completion)
     }
     
     func shouldContinueToPage(moc: NSManagedObjectContext, lastNotification: RemoteNotificationsAPIController.NotificationsResult.Notification) -> Bool {

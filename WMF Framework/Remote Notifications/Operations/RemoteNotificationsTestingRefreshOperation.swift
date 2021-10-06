@@ -2,6 +2,11 @@
 import Foundation
 
 class RemoteNotificationsTestingRefreshOperation: RemoteNotificationsRefreshOperation {
+    
+    override func fetchAllNotifications(project: RemoteNotificationsProject, continueId: String?, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
+        apiController.getAllNotifications(from: project, continueId: continueId, fromRefresh: true, completion: completion)
+    }
+    
     override func shouldContinueToPage(moc: NSManagedObjectContext, lastNotification: RemoteNotificationsAPIController.NotificationsResult.Notification) -> Bool {
         
         print("🔴REFRESH OPERATION: \(self.project)")
