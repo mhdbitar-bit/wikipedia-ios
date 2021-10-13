@@ -2,14 +2,26 @@
 import Foundation
 
 class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController {
+    
+    var continueCounts: [String: Int] = [:]
+    
     override func getAllNotifications(from project: RemoteNotificationsProject, continueId: String?, fromRefresh: Bool = false, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             
             //simulate time it takes to return from network
             sleep(UInt32(Int.random(in: 0...2)))
-            let randomTotal = fromRefresh ? Int.random(in: 0...3) : Int.random(in: 0...50)
+            let randomTotal = fromRefresh ? Int.random(in: 0...3) : 50
             print("🔵API CONTROLLER: \(project) - random total: \(randomTotal)")
-            let continueID = Int.random(in: 1...10) == 1 ? nil : "asdf"
+            var continueID: String? = "asdf"
+            if let count = self.continueCounts[project.notificationsApiWikiIdentifier] {
+                self.continueCounts[project.notificationsApiWikiIdentifier] = count + 1
+                if count > 28 {
+                    continueID = nil
+                }
+            } else {
+                self.continueCounts[project.notificationsApiWikiIdentifier] = 2
+            }
+            
             if continueID == "asdf" {
                 print("🔵API CONTROLLER: \(project) - continue paging")
             } else {

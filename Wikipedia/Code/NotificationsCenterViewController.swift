@@ -53,7 +53,7 @@ final class NotificationsCenterViewController: ViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        viewModel.refreshNotifications()
+        //viewModel.refreshNotifications()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

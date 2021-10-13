@@ -29,7 +29,7 @@ import CocoaLumberjackSwift
         operationsController.refreshNotifications(completion)
     }
     
-    public func fetchNotifications(fetchLimit: Int = 10, fetchOffset: Int = 0) -> [RemoteNotification] {
+    public func fetchNotifications(fetchLimit: Int = 1000, fetchOffset: Int = 0) -> [RemoteNotification] {
         assert(Thread.isMainThread)
         
         guard let viewContext = self.viewContext else {

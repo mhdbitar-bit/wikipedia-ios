@@ -56,7 +56,7 @@ final class NotificationModelsContainer {
     }
     
     var fetchOffset: Int {
-        return notifications.count + 1
+        return notifications.count
     }
     
     var sortedCellViewModels: [NotificationsCenterCellViewModel] {
