@@ -27,7 +27,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
         view.insets = NSDirectionalEdgeInsets(top: 7, leading: 7, bottom: -7, trailing: -7)
         return view
 	}()
-    
+
     lazy var leadingImageTapGestureRecognizer: UITapGestureRecognizer = {
         let tap = UITapGestureRecognizer(target: self, action: #selector(tappedLeadingImage))
         leadingImageView.addGestureRecognizer(tap)
@@ -50,7 +50,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		insetLabel.layer.borderColor = UIColor.black.cgColor
         insetLabel.insets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: -4, trailing: -4)
         
-        insetLabel.isHidden = true
+        insetLabel.isHidden = false
 
 		return insetLabel
 	}()
@@ -60,9 +60,9 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		imageView.image = UIImage(named: "notifications-project-commons")
 		imageView.contentMode = .scaleAspectFit
-        
+
         imageView.isHidden = true
-        
+
 		return imageView
 	}()
 
@@ -83,12 +83,12 @@ final class NotificationsCenterCell: UICollectionViewCell {
 	lazy var subheaderLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
-		label.setContentCompressionResistancePriority(.required, for: .vertical)
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
 		label.font = UIFont.wmf_font(.subheadline, compatibleWithTraitCollection: traitCollection)
 		label.adjustsFontForContentSizeCategory = true
+        label.textAlignment = .left
 		label.numberOfLines = 1
-		label.textAlignment = .left
-		label.text = ""
+		label.text = " "
 		return label
 	}()
 
@@ -101,7 +101,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		label.lineBreakMode = .byTruncatingTail
 		label.textAlignment = .left
 		label.numberOfLines = 1
-		label.text = ""
+		label.text = " "
 		return label
 	}()
 
@@ -283,11 +283,11 @@ final class NotificationsCenterCell: UICollectionViewCell {
 
 			projectSourceLabel.topAnchor.constraint(greaterThanOrEqualTo: projectSourceContainer.topAnchor),
 			projectSourceLabel.trailingAnchor.constraint(equalTo: relativeTimeAgoLabel.trailingAnchor),
-			projectSourceLabel.centerYAnchor.constraint(greaterThanOrEqualTo: contentView.centerYAnchor),
+			projectSourceLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
 			projectSourceImage.topAnchor.constraint(greaterThanOrEqualTo: projectSourceContainer.topAnchor),
 			projectSourceImage.trailingAnchor.constraint(equalTo: relativeTimeAgoLabel.trailingAnchor),
-			projectSourceImage.centerYAnchor.constraint(greaterThanOrEqualTo: contentView.centerYAnchor),
+			projectSourceImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 		])
 	}
 
@@ -318,7 +318,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
 			return
 		}
 
-		// let displayState = NotificationsCenterCellDisplayState.allCases.randomElement()!		
+		// let displayState = NotificationsCenterCellDisplayState.allCases.randomElement()!
 		let cellStyle = NotificationsCenterCellStyle(theme: theme, traitCollection: traitCollection, notificationType: notificationType)
 
 		// Colors
@@ -354,17 +354,17 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		leadingImageView.layer.borderColor = cellStyle.leadingImageBorderColor(displayState).cgColor
         leadingImageTapGestureRecognizer.isEnabled = cellStyle.isLeadingImageTapGestureEnabled(displayState)
 	}
-    
+
     func updateLabels(forViewModel viewModel: NotificationsCenterCellViewModel) {
         headerLabel.text = viewModel.headerText
         subheaderLabel.text = viewModel.subheaderText
-        messageSummaryLabel.text = viewModel.bodyText
+        messageSummaryLabel.text = viewModel.bodyText ?? " "
         metaActionButton.setTitle(viewModel.footerText, for: .normal)
         relativeTimeAgoLabel.text = viewModel.dateText
     }
-    
+
     func updateProject(forViewModel viewModel: NotificationsCenterCellViewModel) {
-        
+
         // Show or hide project source label and image
         if let projectText = viewModel.projectText {
             projectSourceLabel.label.text = projectText
@@ -376,14 +376,14 @@ final class NotificationsCenterCell: UICollectionViewCell {
             projectSourceImage.isHidden = false
         }
     }
-    
+
     func updateMetaButton(forViewModel viewModel: NotificationsCenterCellViewModel) {
-        
+
         guard let footerText = viewModel.footerText else {
             metaActionButton.isHidden =  true
             return
         }
-        
+
         metaActionButton.setTitle(footerText, for: .normal)
         metaActionButton.isHidden =  false
 
@@ -391,7 +391,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
             metaActionButton.setImage(nil, for: .normal)
             return
         }
-        
+
         let image: UIImage?
         switch footerIconType {
         case .custom(let iconName):
@@ -399,7 +399,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
         case .system(let iconName):
             image = UIImage(systemName: iconName)
         }
-        
+
         metaActionButton.setImage(image, for: .normal)
     }
 
@@ -407,7 +407,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
         guard let viewModel = viewModel else {
             return
         }
-        
+
         delegate?.toggleCheckedStatus(viewModel: viewModel)
     }
 }

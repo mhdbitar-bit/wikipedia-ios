@@ -11,9 +11,12 @@ final class NotificationsCenterViewController: ViewController {
 
     let viewModel: NotificationsCenterViewModel
     
+    private var cellViewModelsDict: [IndexPath: NotificationsCenterCellViewModel] = [:]
+    
     typealias DataSource = UICollectionViewDiffableDataSource<NotificationsCenterSection, NotificationsCenterCellViewModel>
     typealias Snapshot = NSDiffableDataSourceSnapshot<NotificationsCenterSection, NotificationsCenterCellViewModel>
     private lazy var dataSource = makeDataSource()
+    private let snapshotUpdateQueue = DispatchQueue(label: "org.wikipedia.notificationcenter.snapshotUpdateQueue", qos: .userInteractive)
     
     private let editTitle = WMFLocalizedString("notifications-center-edit-button-edit", value: "Edit", comment: "Title for navigation bar button to turn on edit mode for toggling notification read status")
     private let doneTitle = WMFLocalizedString("notifications-center-edit-button-done", value: "Done", comment: "Title for navigation bar button to turn off edit mode for toggling notification read status")
@@ -118,12 +121,13 @@ private extension NotificationsCenterViewController {
     }
     
     func applySnapshot(cellViewModels: [NotificationsCenterCellViewModel], animatingDifferences: Bool = true) {
-        DispatchQueue.main.async {
+        let _ = self.dataSource //hack to kick off data source instantiation on main thread if needed
+        snapshotUpdateQueue.async {
             var snapshot = Snapshot()
             snapshot.appendSections([.main])
             snapshot.appendItems(cellViewModels)
             print("🌀\(Thread.isMainThread)")
-            self.dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
 }
@@ -132,6 +136,9 @@ private extension NotificationsCenterViewController {
 
 extension NotificationsCenterViewController: NotificationCenterViewModelDelegate {
     func cellViewModelsDidChange(cellViewModels: [NotificationsCenterCellViewModel]) {
+        if let firstViewModel = cellViewModels.first {
+            notificationsView.updateCellHeightIfNeeded(viewModel: firstViewModel)
+        }
         applySnapshot(cellViewModels: cellViewModels, animatingDifferences: true)
     }
     
