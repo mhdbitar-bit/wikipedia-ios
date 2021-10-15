@@ -10,7 +10,7 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
             
             //simulate time it takes to return from network
             sleep(UInt32(Int.random(in: 0...2)))
-            let randomTotal = fromRefresh ? Int.random(in: 0...3) : 50
+            let randomTotal = fromRefresh ? Int.random(in: 0...30) : 50
             print("🔵API CONTROLLER: \(project) - random total: \(randomTotal)")
             var continueID: String? = "asdf"
             if let count = self.continueCounts[project.notificationsApiWikiIdentifier] {
@@ -28,16 +28,16 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
                 print("🔵API CONTROLLER: \(project) - end paging")
             }
             
-            let notifications = RemoteNotificationsAPIController.NotificationsResult.Query.Notifications(list: self.randomlyGenerateNotifications(totalCount: randomTotal, project: project), continueId: continueID)
+            let notifications = RemoteNotificationsAPIController.NotificationsResult.Query.Notifications(list: self.randomlyGenerateNotifications(totalCount: randomTotal, project: project, fromRefresh: fromRefresh), continueId: continueID)
             completion(notifications, nil)
         }
     }
     
-    private func randomlyGenerateNotifications(totalCount: Int, project: RemoteNotificationsProject) -> [RemoteNotificationsAPIController.NotificationsResult.Notification] {
+    private func randomlyGenerateNotifications(totalCount: Int, project: RemoteNotificationsProject, fromRefresh: Bool) -> [RemoteNotificationsAPIController.NotificationsResult.Notification] {
         var result: [RemoteNotificationsAPIController.NotificationsResult.Notification] = []
         var loopNumber = 0
         while loopNumber < totalCount {
-            let randomNotification = RemoteNotificationsAPIController.NotificationsResult.Notification.random(project: project)
+            let randomNotification = RemoteNotificationsAPIController.NotificationsResult.Notification.random(project: project, fromRefresh: fromRefresh)
             result.append(randomNotification)
             loopNumber = loopNumber + 1
         }
@@ -47,11 +47,11 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
 }
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification {
-    static func random(project: RemoteNotificationsProject) -> RemoteNotificationsAPIController.NotificationsResult.Notification {
-        return RemoteNotificationsAPIController.NotificationsResult.Notification(testing: true, project: project)
+    static func random(project: RemoteNotificationsProject, fromRefresh: Bool) -> RemoteNotificationsAPIController.NotificationsResult.Notification {
+        return RemoteNotificationsAPIController.NotificationsResult.Notification(testing: true, project: project, fromRefresh: fromRefresh)
     }
     
-    init(testing: Bool, project: RemoteNotificationsProject) {
+    init(testing: Bool, project: RemoteNotificationsProject, fromRefresh: Bool) {
         
         
         let randomCategoryAndTypeIDs: [(String, String)] = [
@@ -92,7 +92,7 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
         self.category = randomCategoryAndType.0
         self.type = randomCategoryAndType.1
         
-        let timestamp = Timestamp(testing: true)
+        let timestamp = Timestamp(testing: true, fromRefresh: fromRefresh)
         self.timestamp = timestamp
         self.title = Title(testing: true, randomCategoryAndType: randomCategoryAndType)
         self.agent = Agent(testing: true, randomCategoryAndType: randomCategoryAndType, project: project)
@@ -105,12 +105,13 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
 }
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification.Timestamp {
-    init(testing: Bool) {
+    init(testing: Bool, fromRefresh: Bool) {
         let today = Date()
         let day = TimeInterval(60 * 60 * 24)
         let year = day * 365
         let twentyYearsAgo = Date(timeIntervalSinceNow: year * 20)
-        let randomTimeInterval = TimeInterval.random(in: today.timeIntervalSinceNow...twentyYearsAgo.timeIntervalSinceNow)
+        let yesterday = Date(timeIntervalSinceNow: day)
+        let randomTimeInterval = fromRefresh ? TimeInterval.random(in: today.timeIntervalSinceNow...yesterday.timeIntervalSinceNow) : TimeInterval.random(in: today.timeIntervalSinceNow...twentyYearsAgo.timeIntervalSinceNow)
         let randomDate = Date(timeIntervalSinceNow: -randomTimeInterval)
         let dateString8601 = DateFormatter.wmf_iso8601().string(from: randomDate)
         let unixTimeInterval = randomDate.timeIntervalSince1970

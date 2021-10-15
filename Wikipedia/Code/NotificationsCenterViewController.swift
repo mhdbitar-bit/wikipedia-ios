@@ -11,8 +11,6 @@ final class NotificationsCenterViewController: ViewController {
 
     let viewModel: NotificationsCenterViewModel
     
-    private var cellViewModelsDict: [IndexPath: NotificationsCenterCellViewModel] = [:]
-    
     typealias DataSource = UICollectionViewDiffableDataSource<NotificationsCenterSection, NotificationsCenterCellViewModel>
     typealias Snapshot = NSDiffableDataSourceSnapshot<NotificationsCenterSection, NotificationsCenterCellViewModel>
     private lazy var dataSource = makeDataSource()
@@ -56,7 +54,7 @@ final class NotificationsCenterViewController: ViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        //viewModel.refreshNotifications()
+        viewModel.refreshNotifications()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
