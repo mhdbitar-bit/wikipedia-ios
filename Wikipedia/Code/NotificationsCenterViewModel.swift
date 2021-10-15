@@ -16,7 +16,9 @@ final class NotificationsCenterViewModel: NSObject {
     // MARK: - Properties
 
     let remoteNotificationsController: RemoteNotificationsController
+
 	weak var delegate: NotificationCenterViewModelDelegate?
+
     private let languageLinkController: MWKLanguageLinkController
     lazy private var modelContainer = NotificationModelsContainer(languageLinkController: self.languageLinkController, delegate: self)
     
@@ -30,11 +32,11 @@ final class NotificationsCenterViewModel: NSObject {
         }
     }
 
-	// MARK: - Lifecycle
+    // MARK: - Lifecycle
 
-	@objc
+    @objc
     init(remoteNotificationsController: RemoteNotificationsController, languageLinkController: MWKLanguageLinkController) {
-		self.remoteNotificationsController = remoteNotificationsController
+        self.remoteNotificationsController = remoteNotificationsController
         self.languageLinkController = languageLinkController
 
         super.init()

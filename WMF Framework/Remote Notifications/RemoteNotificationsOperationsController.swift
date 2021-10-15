@@ -151,23 +151,16 @@ class RemoteNotificationsOperationsController: NSObject {
                 return
             }
 
-            var projects: [RemoteNotificationsProject] = []
-            for languageCode in preferredLanguageCodes {
-                projects.append(.language(languageCode, nil))
-            }
+            var projects: [RemoteNotificationsProject] = preferredLanguageCodes.map { .language($0, nil) }
             projects.append(.commons)
             projects.append(.wikidata)
-            
+
             var operations: [RemoteNotificationsRefreshOperation] = []
-            for project in projects {
-                
-                #if DEBUG
-                let operation = RemoteNotificationsTestingRefreshOperation(with: self.apiController, modelController: modelController, project: project, cookieDomain: self.cookieDomainForProject(project))
-                #else
-                let operation = RemoteNotificationsRefreshOperation(with: self.apiController, modelController: modelController, project: project, cookieDomain: self.cookieDomainForProject(project))
-                #endif
-                operations.append(operation)
-            }
+            #if DEBUG
+            operations = projects.map { RemoteNotificationsTestingRefreshOperation(with: self.apiController, modelController: modelController, project: $0, cookieDomain: self.cookieDomainForProject($0)) }
+            #else
+            operations = projects.map { RemoteNotificationsRefreshOperation(with: self.apiController, modelController: modelController, project: $0, cookieDomain: self.cookieDomainForProject($0)) }
+            #endif
             
             let completionOperation = BlockOperation { [weak self] in
                 DispatchQueue.main.async {
