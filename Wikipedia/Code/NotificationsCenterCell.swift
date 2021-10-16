@@ -2,6 +2,7 @@ import UIKit
 
 protocol NotificationsCenterCellDelegate: AnyObject {
 	func userDidTapSecondaryActionForCellIdentifier(id: String)
+    func toggleReadStatus(notification: RemoteNotification)
     func toggleCheckedStatus(viewModel: NotificationsCenterCellViewModel)
 }
 
@@ -27,6 +28,18 @@ final class NotificationsCenterCell: UICollectionViewCell {
         view.insets = NSDirectionalEdgeInsets(top: 7, leading: 7, bottom: -7, trailing: -7)
         return view
 	}()
+    
+    lazy var bookButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "book.fill"), for: .normal)
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 32),
+            button.widthAnchor.constraint(equalToConstant: 32)
+        ])
+        button.addTarget(self, action: #selector(tappedBookButton), for: .touchUpInside)
+        return button
+    }()
 
     lazy var leadingImageTapGestureRecognizer: UITapGestureRecognizer = {
         let tap = UITapGestureRecognizer(target: self, action: #selector(tappedLeadingImage))
@@ -164,6 +177,15 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		view.translatesAutoresizingMaskIntoConstraints = false
 		return view
 	}()
+    
+    lazy var leadingContainerStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.alignment = .leading
+        return stackView
+    }()
 
 	lazy var projectSourceContainer: UIView = {
 		let view = UIView()
@@ -211,7 +233,9 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		contentView.addSubview(mainVerticalStackView)
 		contentView.addSubview(cellSeparator)
 
-		leadingContainer.addSubview(leadingImageView)
+		leadingContainer.addSubview(leadingContainerStackView)
+        leadingContainerStackView.addArrangedSubview(leadingImageView)
+        leadingContainerStackView.addArrangedSubview(bookButton)
 
 		headerTextContainer.addSubview(headerLabel)
 		headerTextContainer.addSubview(relativeTimeAgoLabel)
@@ -236,6 +260,12 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		// Primary Hierarchy Constraints
 
 		NSLayoutConstraint.activate([
+            
+            leadingContainerStackView.topAnchor.constraint(equalTo: leadingContainer.topAnchor, constant: edgeMargin),
+            leadingContainerStackView.bottomAnchor.constraint(lessThanOrEqualTo: leadingContainer.bottomAnchor, constant: -(edgeMargin + 50)),
+            leadingContainerStackView.leadingAnchor.constraint(equalTo: leadingContainer.leadingAnchor, constant: edgeMargin),
+            leadingContainerStackView.trailingAnchor.constraint(equalTo: leadingContainer.trailingAnchor, constant: -edgeMargin),
+            
 			leadingContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
 			leadingContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
 			leadingContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
@@ -256,9 +286,6 @@ final class NotificationsCenterCell: UICollectionViewCell {
 		NSLayoutConstraint.activate([
 			leadingImageView.heightAnchor.constraint(equalToConstant: 32),
 			leadingImageView.widthAnchor.constraint(equalToConstant: 32),
-			leadingImageView.leadingAnchor.constraint(equalTo: leadingContainer.leadingAnchor, constant: edgeMargin),
-			leadingImageView.trailingAnchor.constraint(equalTo: leadingContainer.trailingAnchor, constant: -edgeMargin),
-			leadingImageView.topAnchor.constraint(equalTo: leadingContainer.topAnchor, constant: edgeMargin),
 		])
 
 		// Header label constraints
@@ -302,10 +329,15 @@ final class NotificationsCenterCell: UICollectionViewCell {
         updateProject(forViewModel: viewModel)
 		updateMetaButton(forViewModel: viewModel)
         
+        if viewModel.isRead {
+            bookButton.setImage(UIImage(systemName: "book.fill"), for: .normal)
+        } else {
+            bookButton.setImage(UIImage(systemName: "book"), for: .normal)
+        }
+        
         if indexPath == nil {
             return
         }
-        
         
         self.indexPath = indexPath
         projectSourceLabel.label.text = "\(indexPath?.item ?? 0)"
@@ -409,5 +441,13 @@ final class NotificationsCenterCell: UICollectionViewCell {
         }
 
         delegate?.toggleCheckedStatus(viewModel: viewModel)
+    }
+    
+    @objc func tappedBookButton() {
+        guard let viewModel = viewModel else {
+            return
+        }
+        
+        delegate?.toggleReadStatus(notification: viewModel.notification)
     }
 }

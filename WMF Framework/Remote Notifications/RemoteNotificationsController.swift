@@ -29,7 +29,7 @@ import CocoaLumberjackSwift
         operationsController.refreshNotifications(completion)
     }
     
-    public func fetchNotifications(fetchLimit: Int = 1000, fetchOffset: Int = 0) -> [RemoteNotification] {
+    public func fetchNotifications(fetchLimit: Int = 10000, fetchOffset: Int = 0) -> [RemoteNotification] {
         assert(Thread.isMainThread)
         
         guard let viewContext = self.viewContext else {
@@ -48,5 +48,9 @@ import CocoaLumberjackSwift
             DDLogError("Failure fetching notifications from persistence: \(error)")
             return []
         }
+    }
+    
+    public func toggleNotificationReadStatus(notification: RemoteNotification) {
+        operationsController.toggleNotificationReadStatus(notification: notification)
     }
 }

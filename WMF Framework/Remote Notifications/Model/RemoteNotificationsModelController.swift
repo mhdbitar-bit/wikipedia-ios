@@ -221,6 +221,18 @@ final class RemoteNotificationsModelController: NSObject {
             self.save(moc: moc)
         }
     }
+    
+    func toggleReadStatus(_ notification: RemoteNotification) {
+        let backgroundContext = newBackgroundContext()
+        backgroundContext.perform {
+            guard let backgroundNotification = backgroundContext.object(with: notification.objectID) as? RemoteNotification else {
+                return
+            }
+            
+            backgroundNotification.isRead.toggle()
+            self.save(moc: backgroundContext)
+        }
+    }
 
     public func markAsRead(notificationWithID notificationID: String) {
         processNotificationWithID(notificationID) { (notification) in

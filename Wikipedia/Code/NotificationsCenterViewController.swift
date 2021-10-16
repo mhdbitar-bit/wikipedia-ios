@@ -124,7 +124,6 @@ private extension NotificationsCenterViewController {
             var snapshot = Snapshot()
             snapshot.appendSections([.main])
             snapshot.appendItems(cellViewModels)
-            print("🌀\(Thread.isMainThread)")
             self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
@@ -164,6 +163,11 @@ extension NotificationsCenterViewController: UICollectionViewDelegate {
 }
 
 extension NotificationsCenterViewController: NotificationsCenterCellDelegate {
+    func toggleReadStatus(notification: RemoteNotification) {
+        //todo: mark as read/unread API call will be buried in here somewhere, for now just flip the read toggle on background context to demonstrate update flow
+        self.viewModel.remoteNotificationsController.toggleNotificationReadStatus(notification: notification)
+    }
+    
     func userDidTapSecondaryActionForCellIdentifier(id: String) {
         //TODO
     }

@@ -7,7 +7,10 @@ final class NotificationsCenterCellViewModel {
     let notification: RemoteNotification
     let project: RemoteNotificationsProject
     var displayState: NotificationsCenterCellDisplayState
-    private(set) var isRead: Bool
+    
+    var isRead: Bool {
+        return notification.isRead
+    }
 
 	// MARK: - Lifecycle
 
@@ -20,7 +23,6 @@ final class NotificationsCenterCellViewModel {
         
 		self.notification = notification
         self.project = project
-        self.isRead = notification.isRead
         
         self.displayState = Self.displayStateForNotification(notification, editMode: editMode)
 	}
@@ -30,7 +32,6 @@ final class NotificationsCenterCellViewModel {
     }
     
     func copyAnyValuableNewDataFromNotification(_ notification: RemoteNotification, editMode: Bool) {
-        self.isRead = notification.isRead
         
         //preserve selected state, unless params indicate edit mode has switched
         if (self.displayState.isEditing && editMode == false) ||

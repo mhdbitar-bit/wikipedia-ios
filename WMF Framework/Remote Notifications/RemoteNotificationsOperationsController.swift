@@ -126,6 +126,10 @@ class RemoteNotificationsOperationsController: NSObject {
         })
     }
     
+    func toggleNotificationReadStatus(notification: RemoteNotification) {
+        modelController?.toggleReadStatus(notification)
+    }
+    
     func refreshNotifications(_ completion: @escaping () -> Void) {
         
         assert(Thread.isMainThread)
