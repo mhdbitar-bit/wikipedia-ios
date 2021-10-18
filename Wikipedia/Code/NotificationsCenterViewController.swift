@@ -21,6 +21,8 @@ final class NotificationsCenterViewController: ViewController {
     private lazy var editButton = {
         return UIBarButtonItem(title: editTitle, style: .plain, target: self, action: #selector(userDidTapEditButton))
     }()
+    
+    private let refreshControl = UIRefreshControl()
 
     // MARK: - Lifecycle
 
@@ -54,7 +56,7 @@ final class NotificationsCenterViewController: ViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        viewModel.refreshNotifications()
+        //viewModel.refreshNotifications()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -99,6 +101,13 @@ final class NotificationsCenterViewController: ViewController {
 private extension NotificationsCenterViewController {
     func setupCollectionView() {
         notificationsView.collectionView.delegate = self
+        notificationsView.collectionView.addSubview(refreshControl)
+        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+    }
+    
+    @objc private func refresh(_ sender: Any) {
+        viewModel.refreshNotifications()
+        refreshControl.endRefreshing()
     }
     
     func makeDataSource() -> DataSource {

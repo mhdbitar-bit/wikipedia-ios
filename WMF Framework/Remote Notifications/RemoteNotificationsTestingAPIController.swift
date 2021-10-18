@@ -4,13 +4,15 @@ import Foundation
 class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController {
     
     var continueCounts: [String: Int] = [:]
+    private var addedSpecificNotification = false
+    private var updatedSpecificRefreshNotification = false
     
     override func getAllNotifications(from project: RemoteNotificationsProject, continueId: String?, fromRefresh: Bool = false, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             
             //simulate time it takes to return from network
             sleep(UInt32(Int.random(in: 0...2)))
-            let randomTotal = fromRefresh ? Int.random(in: 0...30) : 50
+            let randomTotal = fromRefresh ? Int.random(in: 0...1) : 50
             print("🔵API CONTROLLER: \(project) - random total: \(randomTotal)")
             var continueID: String? = "asdf"
             if let count = self.continueCounts[project.notificationsApiWikiIdentifier] {
@@ -37,7 +39,15 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
         var result: [RemoteNotificationsAPIController.NotificationsResult.Notification] = []
         var loopNumber = 0
         while loopNumber < totalCount {
-            let randomNotification = RemoteNotificationsAPIController.NotificationsResult.Notification.random(project: project, fromRefresh: fromRefresh)
+            let isEnglish = project.notificationsApiWikiIdentifier == "enwiki"
+            let randomNotification = RemoteNotificationsAPIController.NotificationsResult.Notification.random(project: project, fromRefresh: fromRefresh, needsSpecific: !self.addedSpecificNotification && isEnglish, updatedSpecific: self.updatedSpecificRefreshNotification)
+            if !self.addedSpecificNotification && isEnglish && !fromRefresh {
+                addedSpecificNotification = true
+            }
+            
+            if !self.updatedSpecificRefreshNotification && isEnglish && fromRefresh {
+                self.updatedSpecificRefreshNotification = true
+            }
             result.append(randomNotification)
             loopNumber = loopNumber + 1
         }
@@ -47,11 +57,11 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
 }
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification {
-    static func random(project: RemoteNotificationsProject, fromRefresh: Bool) -> RemoteNotificationsAPIController.NotificationsResult.Notification {
-        return RemoteNotificationsAPIController.NotificationsResult.Notification(testing: true, project: project, fromRefresh: fromRefresh)
+    static func random(project: RemoteNotificationsProject, fromRefresh: Bool, needsSpecific: Bool, updatedSpecific: Bool) -> RemoteNotificationsAPIController.NotificationsResult.Notification {
+        return RemoteNotificationsAPIController.NotificationsResult.Notification(testing: true, project: project, fromRefresh: fromRefresh, needsSpecific: needsSpecific, updatedSpecific: updatedSpecific)
     }
     
-    init(testing: Bool, project: RemoteNotificationsProject, fromRefresh: Bool) {
+    init(testing: Bool, project: RemoteNotificationsProject, fromRefresh: Bool, needsSpecific: Bool, updatedSpecific: Bool) {
         
         
         let randomCategoryAndTypeIDs: [(String, String)] = [
@@ -84,20 +94,36 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
         let section = ["message", "alert"]
         
         self.wiki = project.notificationsApiWikiIdentifier
-        let identifier = UUID().uuidString
+        
+        let isEnglish = project.notificationsApiWikiIdentifier == "enwiki"
+        var identifier: String
+        if needsSpecific && isEnglish && !fromRefresh {
+            identifier = "1234-specificID-5678"
+        } else {
+            identifier = UUID().uuidString
+        }
+        
+        if fromRefresh && !updatedSpecific && isEnglish {
+            identifier = "1234-specificID-5678"
+        }
+        
         self.id = identifier
+        
         self.section = section.randomElement()!
         
         let randomCategoryAndType = randomCategoryAndTypeIDs.randomElement()!
         self.category = randomCategoryAndType.0
         self.type = randomCategoryAndType.1
         
-        let timestamp = Timestamp(testing: true, fromRefresh: fromRefresh)
+        let timestamp = Timestamp(testing: true, fromRefresh: fromRefresh, needsSpecific: needsSpecific, updatedSpecific: updatedSpecific, project: project)
         self.timestamp = timestamp
         self.title = Title(testing: true, randomCategoryAndType: randomCategoryAndType)
         self.agent = Agent(testing: true, randomCategoryAndType: randomCategoryAndType, project: project)
         
-        let isRead = Bool.random()
+        var isRead = needsSpecific ? true : Bool.random()
+        if fromRefresh && !updatedSpecific && isEnglish {
+            isRead = false
+        }
         self.readString = isRead ? "isRead" : nil
        
         self.message = Message(testing: true, identifier: identifier)
@@ -105,14 +131,15 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
 }
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification.Timestamp {
-    init(testing: Bool, fromRefresh: Bool) {
+    init(testing: Bool, fromRefresh: Bool, needsSpecific: Bool, updatedSpecific: Bool, project: RemoteNotificationsProject) {
         let today = Date()
         let day = TimeInterval(60 * 60 * 24)
         let year = day * 365
         let twentyYearsAgo = Date(timeIntervalSinceNow: year * 20)
         let yesterday = Date(timeIntervalSinceNow: day)
         let randomTimeInterval = fromRefresh ? TimeInterval.random(in: today.timeIntervalSinceNow...yesterday.timeIntervalSinceNow) : TimeInterval.random(in: today.timeIntervalSinceNow...twentyYearsAgo.timeIntervalSinceNow)
-        let randomDate = Date(timeIntervalSinceNow: -randomTimeInterval)
+        let useCurrentDate = (needsSpecific && !fromRefresh) || (project.notificationsApiWikiIdentifier == "enwiki" && !updatedSpecific && fromRefresh)
+        let randomDate = useCurrentDate ? Date() : Date(timeIntervalSinceNow: -randomTimeInterval)
         let dateString8601 = DateFormatter.wmf_iso8601().string(from: randomDate)
         let unixTimeInterval = randomDate.timeIntervalSince1970
         self.utciso8601 = dateString8601
@@ -179,7 +206,7 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification.Message {
     init(testing: Bool, identifier: String) {
-        self.header = "Test header text for identifier: \(identifier)"
+        self.header = "\(identifier)"
         self.body = "Test body text for identifier: \(identifier)"
         let primaryLink = RemoteNotificationLink(type: nil, url: URL(string:"https://en.wikipedia.org/wiki/Cat")!, label: "Label for primary link")
         self.links = RemoteNotificationLinks(primary: primaryLink, secondary: nil)
