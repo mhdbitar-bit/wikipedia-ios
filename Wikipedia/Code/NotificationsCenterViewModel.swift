@@ -24,6 +24,8 @@ final class NotificationsCenterViewModel: NSObject {
     
     private var isImportingPrimaryLanguage = true
     private var isPagingEnabled = true
+    private var isFilteringOn = false
+    
     var editMode = false {
         didSet {
             if oldValue != editMode {
@@ -65,6 +67,12 @@ final class NotificationsCenterViewModel: NSObject {
         }
     }
     
+    public func toggledFilter() {
+        modelContainer.reset()
+        isFilteringOn.toggle()
+        fetchFirstPage()
+    }
+    
     func fetchFirstPage() {
         self.isImportingPrimaryLanguage = true
         kickoffImportIfNeeded { [weak self] in
@@ -76,7 +84,7 @@ final class NotificationsCenterViewModel: NSObject {
                 
                 self.isImportingPrimaryLanguage = false
                 
-                let notifications = self.remoteNotificationsController.fetchNotifications()
+                let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: self.isFilteringOn)
                 self.modelContainer.appendNotifications(notifications: notifications, editMode: self.editMode)
                 self.delegate?.cellViewModelsDidChange(cellViewModels: self.modelContainer.sortedCellViewModels)
             }
@@ -94,7 +102,7 @@ final class NotificationsCenterViewModel: NSObject {
             return
         }
         
-        let notifications = self.remoteNotificationsController.fetchNotifications(fetchOffset: modelContainer.fetchOffset)
+        let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: isFilteringOn, fetchOffset: modelContainer.fetchOffset)
         
         guard notifications.count > 0 else {
             isPagingEnabled = false

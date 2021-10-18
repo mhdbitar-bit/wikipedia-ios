@@ -29,7 +29,7 @@ import CocoaLumberjackSwift
         operationsController.refreshNotifications(completion)
     }
     
-    public func fetchNotifications(fetchLimit: Int = 10000, fetchOffset: Int = 0) -> [RemoteNotification] {
+    public func fetchNotifications(isFilteringOn: Bool = false, fetchLimit: Int = 50, fetchOffset: Int = 0) -> [RemoteNotification] {
         assert(Thread.isMainThread)
         
         guard let viewContext = self.viewContext else {
@@ -41,6 +41,9 @@ import CocoaLumberjackSwift
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         fetchRequest.fetchLimit = fetchLimit
         fetchRequest.fetchOffset = fetchOffset
+        if isFilteringOn {
+            fetchRequest.predicate = NSPredicate(format: "typeString == %@", "thank-you-edit")
+        }
         
         do {
             return try viewContext.fetch(fetchRequest)

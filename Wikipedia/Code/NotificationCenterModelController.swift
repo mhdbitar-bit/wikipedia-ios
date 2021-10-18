@@ -21,6 +21,12 @@ final class NotificationModelsContainer {
         self.languageLinkController = languageLinkController
     }
     
+    func reset() {
+        notifications.removeAll()
+        cellViewModelsDict.removeAll()
+        cellViewModels.removeAll()
+    }
+    
     func appendNotifications(notifications: [RemoteNotification], editMode: Bool) {
         for notification in notifications {
             self.notifications.insert(notification)

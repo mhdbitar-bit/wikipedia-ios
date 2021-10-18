@@ -72,8 +72,10 @@ final class NotificationsCenterViewController: ViewController {
     fileprivate func setupBarButtons() {
         enableToolbar()
         setToolbarHidden(false, animated: false)
+        
+        let filtersButton = UIBarButtonItem(title: "Filters", style: .plain, target: self, action: #selector(userDidTapFilterButton))
 
-		navigationItem.rightBarButtonItem = editButton
+		navigationItem.rightBarButtonItems = [filtersButton, editButton]
 	}
 
 	// MARK: - Edit button
@@ -82,6 +84,12 @@ final class NotificationsCenterViewController: ViewController {
         viewModel.editMode.toggle()
         editButton.title = viewModel.editMode ? doneTitle : editTitle
 	}
+    
+    @objc func userDidTapFilterButton() {
+            let filtersVC = NotificationsCenterFilterViewController()
+            filtersVC.delegate = self
+            present(filtersVC, animated: true, completion: nil)
+        }
 
 	// MARK: - Public
 
@@ -183,5 +191,11 @@ extension NotificationsCenterViewController: NotificationsCenterCellDelegate {
     
     func toggleCheckedStatus(viewModel: NotificationsCenterCellViewModel) {
         self.viewModel.toggleCheckedStatus(cellViewModel: viewModel)
+    }
+}
+
+extension NotificationsCenterViewController: NotificationsCenterFilterViewControllerDelegate {
+    func tappedToggleFilterButton() {
+        viewModel.toggledFilter()
     }
 }
