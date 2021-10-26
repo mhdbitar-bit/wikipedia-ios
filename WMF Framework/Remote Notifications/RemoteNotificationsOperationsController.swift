@@ -55,6 +55,11 @@ class RemoteNotificationsOperationsController: NSObject {
         operationQueue.cancelAllOperations()
     }
     
+    public func toggleReadStatus(viewNotification: RemoteNotification) {
+        //TODO: Mark as Read operation that hits API and flips and saves local flag on managed object. For now just doing local part.
+        modelController?.toggleReadStatus(viewNotification)
+    }
+    
     /// Kicks off operations to fetch and persist read and unread history of notifications from app languages, Commons, and Wikidata. Designed to fully import once per installation. Will not attempt if import is already in progress. Must be called from main thread.
     /// - Parameter completion: Block to run once operations have completed. Dispatched to main thread.
     func importNotificationsIfNeeded(_ completion: @escaping (RemoteNotificationsOperationsError?) -> Void) {
@@ -128,6 +133,8 @@ class RemoteNotificationsOperationsController: NSObject {
             return
         }
         
+        let isImporting = operationType == RemoteNotificationsImportOperation.self
+        
         preferredLanguageCodesProvider.getPreferredLanguageCodes({ [weak self] (preferredLanguageCodes) in
             
             guard let self = self else {
@@ -138,7 +145,8 @@ class RemoteNotificationsOperationsController: NSObject {
             projects.append(.commons)
             projects.append(.wikidata)
             
-            let operations = projects.map { operationType.init(with: self.apiController, modelController: modelController, project: $0) }
+            let apiController: RemoteNotificationsAPIController = isImporting ? RemoteNotificationsTestingAPIController(session: self.apiController.session, configuration: self.apiController.configuration) : self.apiController
+            let operations = projects.map { operationType.init(with: apiController, modelController: modelController, project: $0) }
             
             let completionOperation = BlockOperation {
                 completion(nil)

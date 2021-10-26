@@ -21,6 +21,7 @@ final class NotificationsCenterViewController: ViewController {
     private lazy var editButton = {
         return UIBarButtonItem(title: editTitle, style: .plain, target: self, action: #selector(userDidTapEditButton))
     }()
+    private let refreshControl = UIRefreshControl()
 
     // MARK: - Lifecycle
 
@@ -56,7 +57,8 @@ final class NotificationsCenterViewController: ViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        viewModel.refreshNotifications()
+        //temp commenting out so we can demonstrate refreshing only through pull to refresh.
+        //viewModel.refreshNotifications()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -72,8 +74,10 @@ final class NotificationsCenterViewController: ViewController {
     fileprivate func setupBarButtons() {
         enableToolbar()
         setToolbarHidden(false, animated: false)
+        
+        let filtersButton = UIBarButtonItem(title: "Filters", style: .plain, target: self, action: #selector(userDidTapFilterButton))
 
-		navigationItem.rightBarButtonItem = editButton
+		navigationItem.rightBarButtonItems = [filtersButton, editButton]
 	}
 
 	// MARK: - Edit button
@@ -82,6 +86,12 @@ final class NotificationsCenterViewController: ViewController {
         viewModel.editMode.toggle()
         editButton.title = viewModel.editMode ? doneTitle : editTitle
 	}
+    
+    @objc func userDidTapFilterButton() {
+            let filtersVC = NotificationsCenterFilterViewController()
+            filtersVC.delegate = self
+            present(filtersVC, animated: true, completion: nil)
+        }
 
 	// MARK: - Public
 
@@ -101,6 +111,14 @@ final class NotificationsCenterViewController: ViewController {
 private extension NotificationsCenterViewController {
     func setupCollectionView() {
         notificationsView.collectionView.delegate = self
+        notificationsView.collectionView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+    }
+    
+    @objc private func refresh(_ sender: Any) {
+        viewModel.refreshNotifications {
+            self.refreshControl.endRefreshing()
+        }
     }
     
     func setupDataSource() {
@@ -136,7 +154,6 @@ private extension NotificationsCenterViewController {
     func configureEmptyState(isEmpty: Bool) {
         notificationsView.updateEmptyOverlay(visible: isEmpty, headerText: NotificationsCenterView.EmptyOverlayStrings.noUnreadMessages, subheaderText: NotificationsCenterView.EmptyOverlayStrings.checkingForNotifications)
         navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = !isEmpty }
-        navigationItem.rightBarButtonItem?.isEnabled = !isEmpty
     }
 }
 
@@ -144,6 +161,9 @@ private extension NotificationsCenterViewController {
 
 extension NotificationsCenterViewController: NotificationCenterViewModelDelegate {
     func cellViewModelsDidChange(cellViewModels: [NotificationsCenterCellViewModel]) {
+        if let firstViewModel = cellViewModels.first {
+            notificationsView.updateCellHeightIfNeeded(viewModel: firstViewModel)
+        }
         
         configureEmptyState(isEmpty: cellViewModels.isEmpty)
         applySnapshot(cellViewModels: cellViewModels, animatingDifferences: true)
@@ -165,6 +185,8 @@ extension NotificationsCenterViewController: NotificationCenterViewModelDelegate
 extension NotificationsCenterViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
+        print("👀indexPath item: \(indexPath.item)")
+        
         guard let dataSource = dataSource else {
             return
         }
@@ -184,5 +206,15 @@ extension NotificationsCenterViewController: NotificationsCenterCellDelegate {
     
     func toggleCheckedStatus(viewModel: NotificationsCenterCellViewModel) {
         self.viewModel.toggleCheckedStatus(cellViewModel: viewModel)
+    }
+    
+    func toggleReadStatus(viewModel: NotificationsCenterCellViewModel) {
+        self.viewModel.toggleReadStatus(cellViewModel: viewModel)
+    }
+}
+
+extension NotificationsCenterViewController: NotificationsCenterFilterViewControllerDelegate {
+    func tappedToggleFilterButton() {
+        viewModel.toggledFilter()
     }
 }

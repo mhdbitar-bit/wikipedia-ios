@@ -22,6 +22,11 @@ final class NotificationsCenterModelController {
         self.languageLinkController = languageLinkController
     }
     
+    func reset() {
+        cellViewModelsDict.removeAll()
+        cellViewModels.removeAll()
+    }
+    
     func addNewCellViewModelsWith(notifications: [RemoteNotification], editMode: Bool) {
         for notification in notifications {
 

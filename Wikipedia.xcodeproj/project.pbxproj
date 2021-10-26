@@ -392,6 +392,10 @@
 		6747118925072D1500287951 /* IconTitleBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6747118725072D1500287951 /* IconTitleBadge.swift */; };
 		6747118A25072D1500287951 /* IconTitleBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6747118725072D1500287951 /* IconTitleBadge.swift */; };
 		6747118B25072D1500287951 /* IconTitleBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6747118725072D1500287951 /* IconTitleBadge.swift */; };
+		67489649271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67489648271DDDD600634E32 /* NotificationsCenterFilterViewController.swift */; };
+		6748964A271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67489648271DDDD600634E32 /* NotificationsCenterFilterViewController.swift */; };
+		6748964B271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67489648271DDDD600634E32 /* NotificationsCenterFilterViewController.swift */; };
+		6748964C271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67489648271DDDD600634E32 /* NotificationsCenterFilterViewController.swift */; };
 		674E8AB92382DEFF0053D206 /* DiffTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674E8AB82382DEFF0053D206 /* DiffTransformer.swift */; };
 		674E8ABA2382DF020053D206 /* DiffTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674E8AB82382DEFF0053D206 /* DiffTransformer.swift */; };
 		674E8ABB2382DF030053D206 /* DiffTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674E8AB82382DEFF0053D206 /* DiffTransformer.swift */; };
@@ -570,6 +574,7 @@
 		678C7C3023BE7319001AC4D5 /* CacheDBWriterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678C7C2F23BE7319001AC4D5 /* CacheDBWriterHelper.swift */; };
 		678C7C3423BE75F9001AC4D5 /* CacheFileWriterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678C7C3323BE75F9001AC4D5 /* CacheFileWriterHelper.swift */; };
 		678C7C3623BE7779001AC4D5 /* FileManager+CacheExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678C7C3523BE7779001AC4D5 /* FileManager+CacheExtensions.swift */; };
+		678D29932721B53A0036C5D9 /* RemoteNotificationsTestingAPIController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678D29922721B53A0036C5D9 /* RemoteNotificationsTestingAPIController.swift */; };
 		678D79E4235E592F006161FF /* DiffListChangeItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678D79E3235E592F006161FF /* DiffListChangeItemViewModel.swift */; };
 		678D79EB235E5959006161FF /* DiffListChangeItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678D79E3235E592F006161FF /* DiffListChangeItemViewModel.swift */; };
 		678D79EC235E595A006161FF /* DiffListChangeItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678D79E3235E592F006161FF /* DiffListChangeItemViewModel.swift */; };
@@ -3786,6 +3791,7 @@
 		6747117D250703BB00287951 /* ArticleAsLivingDocReferenceCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleAsLivingDocReferenceCollectionViewCell.swift; sourceTree = "<group>"; };
 		674711822507253500287951 /* ArticleAsLivingDocSnippetCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleAsLivingDocSnippetCollectionViewCell.swift; sourceTree = "<group>"; };
 		6747118725072D1500287951 /* IconTitleBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconTitleBadge.swift; sourceTree = "<group>"; };
+		67489648271DDDD600634E32 /* NotificationsCenterFilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsCenterFilterViewController.swift; sourceTree = "<group>"; };
 		674E8AB82382DEFF0053D206 /* DiffTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffTransformer.swift; sourceTree = "<group>"; };
 		67540CA824D221E3008B2894 /* LocationManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManagerFactory.swift; sourceTree = "<group>"; };
 		675A7CFD227A3F7C0034D9D9 /* TalkPageHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TalkPageHeaderView.swift; sourceTree = "<group>"; };
@@ -3843,6 +3849,7 @@
 		678C7C2F23BE7319001AC4D5 /* CacheDBWriterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheDBWriterHelper.swift; sourceTree = "<group>"; };
 		678C7C3323BE75F9001AC4D5 /* CacheFileWriterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheFileWriterHelper.swift; sourceTree = "<group>"; };
 		678C7C3523BE7779001AC4D5 /* FileManager+CacheExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+CacheExtensions.swift"; sourceTree = "<group>"; };
+		678D29922721B53A0036C5D9 /* RemoteNotificationsTestingAPIController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsTestingAPIController.swift; sourceTree = "<group>"; };
 		678D79E3235E592F006161FF /* DiffListChangeItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffListChangeItemViewModel.swift; sourceTree = "<group>"; };
 		678D79EF235E5979006161FF /* DiffListChangeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffListChangeViewModel.swift; sourceTree = "<group>"; };
 		678D79F5235E599B006161FF /* DiffListContextViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffListContextViewModel.swift; sourceTree = "<group>"; };
@@ -5784,6 +5791,7 @@
 				00E2EA8826E28A9700B1A741 /* NotificationsCenterCellStyle.swift */,
 				00E2EA8D26E2A45C00B1A741 /* NotificationsCenterCellDisplayState.swift */,
 				6761AEF62707E34F00E47BAD /* NotificationsCenterModelController.swift */,
+				67489648271DDDD600634E32 /* NotificationsCenterFilterViewController.swift */,
 			);
 			name = "Notifications Center";
 			sourceTree = "<group>";
@@ -7074,6 +7082,7 @@
 			isa = PBXGroup;
 			children = (
 				7A52C01A2150389D00A3A4A1 /* RemoteNotificationsController.swift */,
+				678D29922721B53A0036C5D9 /* RemoteNotificationsTestingAPIController.swift */,
 				7A0312F82153DEB30095C953 /* RemoteNotificationsAPIController.swift */,
 				7A03130221542F5C0095C953 /* RemoteNotificationsOperationsController.swift */,
 				7A03130121542F250095C953 /* Model */,
@@ -11174,6 +11183,7 @@
 				B01E3AFF21F98BFF0015B715 /* EditPreviewViewController.swift in Sources */,
 				D818D38B1ED765470076110D /* ArticleLocationCollectionViewController.swift in Sources */,
 				D8A6BAEF1E4C9C0700A981C8 /* ArticlePlaceView.swift in Sources */,
+				67489649271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */,
 				7A196F5A21BF199500D9E4B5 /* SectionEditorWebView.swift in Sources */,
 				83836ECC1F615E5B007D1A05 /* ShareViewController.swift in Sources */,
 				B0C6BE4A1E42D19D0033BD6E /* WMFCaptchaViewController.swift in Sources */,
@@ -11344,6 +11354,7 @@
 				7A79CCF2200C2C850099B01F /* BatchEditToolbarViewController.swift in Sources */,
 				D84448231DDB60FF00425630 /* WMFArticle+Extensions.m in Sources */,
 				D844DA071D6CC4D40042D692 /* MWKLanguageLinkController.m in Sources */,
+				678D29932721B53A0036C5D9 /* RemoteNotificationsTestingAPIController.swift in Sources */,
 				7A65A5DD20ACFDB6001170B8 /* EventLoggingStandardEventProviding.swift in Sources */,
 				D844D9DC1D6CBBFA0042D692 /* NSString+WMFHTMLParsing.m in Sources */,
 				D8FA18D71E1BD899009675C3 /* NSURL+WMFExtras.m in Sources */,
@@ -12053,6 +12064,7 @@
 				D8A42B751E815A9C00D8E281 /* WMFImageGalleryDetailOverlayView.m in Sources */,
 				6707C03B237F0A6E0017E7B6 /* UIFont+Extensions.swift in Sources */,
 				7ADF497E21B45CEE009EA338 /* TextFormattingPlainToolbarView.swift in Sources */,
+				6748964C271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */,
 				7A998AC41FE20F3B007FE06E /* CollectionViewEditControllerNavigationDelegate+Extensions.swift in Sources */,
 				D8A42B781E815A9C00D8E281 /* UIApplication+SystemSettings.swift in Sources */,
 				B01E3B0221F98BFF0015B715 /* EditPreviewViewController.swift in Sources */,
@@ -12290,6 +12302,7 @@
 				B0B423621EF9D6A300D3DC4C /* OnThisDayViewController.swift in Sources */,
 				D818D3871ED750E40076110D /* ArticleCollectionViewController.swift in Sources */,
 				7A203F0C1FDEDCDD00A229EC /* ReadingListHintController.swift in Sources */,
+				6748964B271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */,
 				D8CE25371E698E2400DAE2E0 /* SavedPagesFunnel.m in Sources */,
 				6798331B22C174F00073CE6F /* LinkOnlyTextView.swift in Sources */,
 				D8CE25391E698E2400DAE2E0 /* WMFChange.m in Sources */,
@@ -12793,6 +12806,7 @@
 				D8EC3E251E9BDA35006712EB /* WMFArticleRevisionFetcher.m in Sources */,
 				D8EC3E261E9BDA35006712EB /* WMFArticleLanguagesSectionHeader.m in Sources */,
 				7A29A5CA1F6C405900E8F42B /* HistoryViewController.swift in Sources */,
+				6748964A271DDDD700634E32 /* NotificationsCenterFilterViewController.swift in Sources */,
 				7AA96D5E21B733A800DE9877 /* TextFormattingProvidingTableViewController.swift in Sources */,
 				677129A124FFF43000E89CA5 /* ArticleAsLivingDocHorizontallyScrollingCell.swift in Sources */,
 				D8EC3E2C1E9BDA35006712EB /* WMFTwoFactorPasswordViewController.swift in Sources */,

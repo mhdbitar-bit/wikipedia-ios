@@ -22,6 +22,8 @@ final class NotificationsCenterViewModel: NSObject {
     lazy private var modelController = NotificationsCenterModelController(languageLinkController: self.languageLinkController, delegate: self)
     
     private var isPagingEnabled = true
+    private var isFilteringOn = false
+    
     var editMode = false {
         didSet {
             if oldValue != editMode {
@@ -56,10 +58,17 @@ final class NotificationsCenterViewModel: NSObject {
 
     // MARK: - Public
     
-    func refreshNotifications() {
+    func refreshNotifications(completion: (() -> Void)? = nil) {
         remoteNotificationsController.refreshNotifications { _ in
             //TODO: Set any refreshing loading states here
+            completion?()
         }
+    }
+    
+    public func toggledFilter() {
+        modelController.reset()
+        isFilteringOn.toggle()
+        fetchFirstPage()
     }
     
     func fetchFirstPage() {
@@ -70,7 +79,7 @@ final class NotificationsCenterViewModel: NSObject {
                     return
                 }
                 
-                let notifications = self.remoteNotificationsController.fetchNotifications()
+                let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: self.isFilteringOn, fetchLimit: 100)
                 self.modelController.addNewCellViewModelsWith(notifications: notifications, editMode: self.editMode)
                 self.delegate?.cellViewModelsDidChange(cellViewModels: self.modelController.sortedCellViewModels)
             }
@@ -84,7 +93,7 @@ final class NotificationsCenterViewModel: NSObject {
             return
         }
         
-        let notifications = self.remoteNotificationsController.fetchNotifications(fetchOffset: modelController.fetchOffset)
+        let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: isFilteringOn, fetchLimit: 50, fetchOffset: modelController.fetchOffset)
         
         guard notifications.count > 0 else {
             isPagingEnabled = false
@@ -98,6 +107,10 @@ final class NotificationsCenterViewModel: NSObject {
     func toggleCheckedStatus(cellViewModel: NotificationsCenterCellViewModel) {
         cellViewModel.toggleCheckedStatus()
         reloadCellWithViewModelIfNeeded(viewModel: cellViewModel)
+    }
+    
+    func toggleReadStatus(cellViewModel: NotificationsCenterCellViewModel) {
+        remoteNotificationsController.toggleReadStatus(viewNotification: cellViewModel.notification)
     }
 
 }
@@ -118,7 +131,7 @@ private extension NotificationsCenterViewModel {
             }
             
             NotificationCenter.default.addObserver(self, selector: #selector(self.contextObjectsDidChange(_:)), name: Notification.Name.NSManagedObjectContextObjectsDidChange, object: self.remoteNotificationsController.viewContext)
-
+            print("🔴Completed importing all languages")
             completion()
         }
     }

@@ -3,6 +3,7 @@ import UIKit
 protocol NotificationsCenterCellDelegate: AnyObject {
     func userDidTapSecondaryActionForCellIdentifier(id: String)
     func toggleCheckedStatus(viewModel: NotificationsCenterCellViewModel)
+    func toggleReadStatus(viewModel: NotificationsCenterCellViewModel)
 }
 
 final class NotificationsCenterCell: UICollectionViewCell {
@@ -32,6 +33,12 @@ final class NotificationsCenterCell: UICollectionViewCell {
         leadingImageView.addGestureRecognizer(tap)
         return tap
     }()
+    
+    lazy var backgroundTapGestureRecognizer: UITapGestureRecognizer = {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tappedBackground))
+        contentView.addGestureRecognizer(tap)
+        return tap
+    }()
 
     lazy var projectSourceLabel: InsetLabelView = {
         let insetLabel = InsetLabelView()
@@ -48,7 +55,6 @@ final class NotificationsCenterCell: UICollectionViewCell {
         insetLabel.layer.borderWidth = 1
         insetLabel.layer.borderColor = UIColor.black.cgColor
         insetLabel.insets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: -4, trailing: -4)
-
         insetLabel.isHidden = true
 
         return insetLabel
@@ -59,7 +65,6 @@ final class NotificationsCenterCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.image = UIImage(named: "notifications-project-commons")
         imageView.contentMode = .scaleAspectFit
-
         imageView.isHidden = true
 
         return imageView
@@ -341,6 +346,8 @@ final class NotificationsCenterCell: UICollectionViewCell {
         leadingImageView.imageView.tintColor = cellStyle.leadingImageTintColor
         leadingImageView.layer.borderColor = cellStyle.leadingImageBorderColor(displayState).cgColor
         leadingImageTapGestureRecognizer.isEnabled = cellStyle.isLeadingImageTapGestureEnabled(displayState)
+        
+        backgroundTapGestureRecognizer.isEnabled = true
     }
 
     func updateLabels(forViewModel viewModel: NotificationsCenterCellViewModel) {
@@ -389,7 +396,15 @@ final class NotificationsCenterCell: UICollectionViewCell {
         guard let viewModel = viewModel else {
             return
         }
-        
+
         delegate?.toggleCheckedStatus(viewModel: viewModel)
+    }
+    
+    @objc func tappedBackground() {
+        guard let viewModel = viewModel else {
+            return
+        }
+        
+        delegate?.toggleReadStatus(viewModel: viewModel)
     }
 }
