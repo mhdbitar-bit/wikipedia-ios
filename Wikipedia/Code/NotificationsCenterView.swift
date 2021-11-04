@@ -149,14 +149,14 @@ final class NotificationsCenterView: SetupView {
         return UICollectionViewCompositionalLayout(section: section)
     }
     
-    func updateCellHeightIfNeeded(viewModel: NotificationsCenterCellViewModel) {
+    func updateCellHeightIfNeeded(viewModel: NotificationsCenterCellViewModel, isEditing: Bool) {
         
         guard !hasDeterminedCellHeight else {
             return
         }
         
         let sizingCell = NotificationsCenterCell(frame: .zero)
-        sizingCell.configure(viewModel: viewModel, theme: .light)
+        sizingCell.configure(viewModel: viewModel, theme: .light, isEditing: isEditing)
         let layoutAttributes = UICollectionViewLayoutAttributes()
         let size = sizingCell.preferredLayoutAttributesFitting(layoutAttributes).size
         
