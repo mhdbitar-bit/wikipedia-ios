@@ -14,14 +14,13 @@ final class NotificationsCenterViewController: ViewController {
     typealias DataSource = UICollectionViewDiffableDataSource<NotificationsCenterSection, NotificationsCenterCellViewModel>
     typealias Snapshot = NSDiffableDataSourceSnapshot<NotificationsCenterSection, NotificationsCenterCellViewModel>
     private var dataSource: DataSource?
-    private let snapshotUpdateQueue = DispatchQueue(label: "org.wikipedia.notificationcenter.snapshotUpdateQueue", qos: .userInteractive)
+
+    private let snapshotUpdateQueue = DispatchQueue(label: "org.wikipedia.notificationscenter.snapshotUpdateQueue", qos: .userInteractive)
     
-    private let editTitle = WMFLocalizedString("notifications-center-edit-button-edit", value: "Edit", comment: "Title for navigation bar button to turn on edit mode for toggling notification read status")
-    private let doneTitle = WMFLocalizedString("notifications-center-edit-button-done", value: "Done", comment: "Title for navigation bar button to turn off edit mode for toggling notification read status")
-    private lazy var editButton = {
-        return UIBarButtonItem(title: editTitle, style: .plain, target: self, action: #selector(userDidTapEditButton))
-    }()
     private let refreshControl = UIRefreshControl()
+    
+    fileprivate lazy var cellPanGestureRecognizer = UIPanGestureRecognizer()
+    fileprivate var activelyPannedCellIndexPath: IndexPath?
 
     // MARK: - Lifecycle
 
@@ -51,8 +50,13 @@ final class NotificationsCenterViewController: ViewController {
         
         setupCollectionView()
         setupDataSource()
-        configureEmptyState(isEmpty: true)
+        //TODO: Revisit and enable importing empty states in a delayed manner to avoid flashing.
+        //configureEmptyState(isEmpty: true, subheaderText: NotificationsCenterView.EmptyOverlayStrings.checkingForNotifications)
         viewModel.fetchFirstPage()
+        
+        notificationsView.collectionView.addGestureRecognizer(cellPanGestureRecognizer)
+        cellPanGestureRecognizer.addTarget(self, action: #selector(userDidPanCell(_:)))
+        cellPanGestureRecognizer.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -77,14 +81,8 @@ final class NotificationsCenterViewController: ViewController {
         
         let filtersButton = UIBarButtonItem(title: "Filters", style: .plain, target: self, action: #selector(userDidTapFilterButton))
 
-		navigationItem.rightBarButtonItems = [filtersButton, editButton]
-	}
-
-	// MARK: - Edit button
-
-	@objc func userDidTapEditButton() {
-        viewModel.editMode.toggle()
-        editButton.title = viewModel.editMode ? doneTitle : editTitle
+		navigationItem.rightBarButtonItems = [filtersButton, editButtonItem]
+        isEditing = false
 	}
     
     @objc func userDidTapFilterButton() {
@@ -94,6 +92,23 @@ final class NotificationsCenterViewController: ViewController {
         }
 
 	// MARK: - Public
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        
+        notificationsView.collectionView.allowsSelection = editing
+        notificationsView.collectionView.allowsMultipleSelection = editing
+        
+        //Reconfigure visible cells to reflect new edit mode.
+        //This has a smoother change vs reloadData()
+        notificationsView.collectionView.visibleCells.forEach { cell in
+            guard let cell = cell as? NotificationsCenterCell else {
+                return
+            }
+            
+            cell.configure(theme: theme, isEditing: editing)
+        }
+    }
 
 
     // MARK: - Themable
@@ -125,13 +140,13 @@ private extension NotificationsCenterViewController {
         dataSource = DataSource(
         collectionView: notificationsView.collectionView,
         cellProvider: { [weak self] (collectionView, indexPath, viewModel) ->
-            UICollectionViewCell? in
+            NotificationsCenterCell? in
 
             guard let self = self,
                   let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NotificationsCenterCell.reuseIdentifier, for: indexPath) as? NotificationsCenterCell else {
                 return nil
             }
-            cell.configure(viewModel: viewModel, theme: self.theme)
+            cell.configure(viewModel: viewModel, theme: self.theme, isEditing: self.isEditing )
             cell.delegate = self
             return cell
         })
@@ -151,9 +166,20 @@ private extension NotificationsCenterViewController {
         }
     }
     
-    func configureEmptyState(isEmpty: Bool) {
-        notificationsView.updateEmptyOverlay(visible: isEmpty, headerText: NotificationsCenterView.EmptyOverlayStrings.noUnreadMessages, subheaderText: NotificationsCenterView.EmptyOverlayStrings.checkingForNotifications)
+    func configureEmptyState(isEmpty: Bool, subheaderText: String = "") {
+        notificationsView.updateEmptyOverlay(visible: isEmpty, headerText: NotificationsCenterView.EmptyOverlayStrings.noUnreadMessages, subheaderText: subheaderText)
         navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = !isEmpty }
+    }
+    
+    /// TODO: Use this to determine selected view models when in editing mode. We will send to NotificationsCenterViewModel for marking as read/unread when
+    /// the associated toolbar button is pressed.
+    /// - Returns:View models that represent cells in the selected state.
+    func selectedCellViewModels() -> [NotificationsCenterCellViewModel] {
+        let selectedIndexes = notificationsView.collectionView.indexPathsForSelectedItems?.map { $0.item } ?? []
+        let currentSnapshot = dataSource?.snapshot()
+        let viewModels = currentSnapshot?.itemIdentifiers ?? []
+        let selectedViewModels = selectedIndexes.compactMap { viewModels.count > $0 ? viewModels[$0] : nil }
+        return selectedViewModels
     }
 }
 
@@ -162,7 +188,7 @@ private extension NotificationsCenterViewController {
 extension NotificationsCenterViewController: NotificationCenterViewModelDelegate {
     func cellViewModelsDidChange(cellViewModels: [NotificationsCenterCellViewModel]) {
         if let firstViewModel = cellViewModels.first {
-            notificationsView.updateCellHeightIfNeeded(viewModel: firstViewModel)
+            notificationsView.updateCellHeightIfNeeded(viewModel: firstViewModel, isEditing: isEditing)
         }
         
         configureEmptyState(isEmpty: cellViewModels.isEmpty)
@@ -177,7 +203,7 @@ extension NotificationsCenterViewController: NotificationCenterViewModelDelegate
                 continue
             }
             
-            cell.configure(viewModel: viewModel, theme: theme)
+            cell.configure(viewModel: viewModel, theme: theme, isEditing: isEditing)
         }
     }
 }
@@ -197,6 +223,14 @@ extension NotificationsCenterViewController: UICollectionViewDelegate {
             viewModel.fetchNextPage()
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
+        if isEditing {
+            return true
+        }
+        
+        return false
+    }
 }
 
 extension NotificationsCenterViewController: NotificationsCenterCellDelegate {
@@ -204,7 +238,7 @@ extension NotificationsCenterViewController: NotificationsCenterCellDelegate {
         //TODO
     }
     
-    func toggleCheckedStatus(viewModel: NotificationsCenterCellViewModel) {
+    func userDidToggleCheckedStatus(viewModel: NotificationsCenterCellViewModel) {
         self.viewModel.toggleCheckedStatus(cellViewModel: viewModel)
     }
     
@@ -217,4 +251,68 @@ extension NotificationsCenterViewController: NotificationsCenterFilterViewContro
     func tappedToggleFilterButton() {
         viewModel.toggledFilter()
     }
+}
+
+// MARK: - Cell Swipe Actions
+
+@objc extension NotificationsCenterViewController: UIGestureRecognizerDelegate {
+
+    /// Only allow cell pan gesture if user's horizontal cell panning behavior seems intentional
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == cellPanGestureRecognizer {
+            let panVelocity = cellPanGestureRecognizer.velocity(in: notificationsView.collectionView)
+            if abs(panVelocity.x) > abs(panVelocity.y) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    @objc fileprivate func userDidPanCell(_ gestureRecognizer: UIPanGestureRecognizer) {
+        switch gestureRecognizer.state {
+        case .began:
+            let touchPosition = gestureRecognizer.location(in: notificationsView.collectionView)
+            guard let cellIndexPath = notificationsView.collectionView.indexPathForItem(at: touchPosition) else {
+                gestureRecognizer.state = .ended
+                break
+            }
+
+            activelyPannedCellIndexPath = cellIndexPath
+        case .ended:
+            userDidSwipeCell(indexPath: activelyPannedCellIndexPath)
+            activelyPannedCellIndexPath = nil
+        default:
+            return
+        }
+    }
+
+    /// This will be removed in the final implementation
+    fileprivate func userDidSwipeCell(indexPath: IndexPath?) {
+        /*
+        guard let indexPath = indexPath, let cellViewModel = viewModel.cellViewModel(indexPath: indexPath) else {
+            return
+        }
+
+        let alertController = UIAlertController(title: cellViewModel.headerText, message: cellViewModel.bodyText, preferredStyle: .actionSheet)
+
+        let firstAction = UIAlertAction(title: "Action 1", style: .default)
+        let secondAction = UIAlertAction(title: "Action 2", style: .default)
+        let thirdAction = UIAlertAction(title: "Action 3", style: .default)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+        alertController.addAction(firstAction)
+        alertController.addAction(secondAction)
+        alertController.addAction(thirdAction)
+        alertController.addAction(cancelAction)
+
+        if let popoverController = alertController.popoverPresentationController, let cell = notificationsView.collectionView.cellForItem(at: indexPath) {
+            popoverController.sourceView = cell
+            popoverController.sourceRect = CGRect(x: cell.bounds.midX, y: cell.bounds.midY, width: 0, height: 0)
+        }
+
+        present(alertController, animated: true, completion: nil)
+        */
+    }
+
 }

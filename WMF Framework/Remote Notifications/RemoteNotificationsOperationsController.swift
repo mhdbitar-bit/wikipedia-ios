@@ -1,7 +1,7 @@
 import CocoaLumberjackSwift
 
 public enum RemoteNotificationsOperationsError: Error {
-    case failureSettingUpModelController
+    case dataUnavailable //triggered when there was an issue when setting up the Core Data stack
 }
 
 class RemoteNotificationsOperationsController: NSObject {
@@ -68,7 +68,7 @@ class RemoteNotificationsOperationsController: NSObject {
         
         guard !isLocked else {
             assertionFailure("Failure setting up notifications core data stack.")
-            completion(.failureSettingUpModelController)
+            completion(.dataUnavailable)
             return
         }
         
@@ -102,7 +102,7 @@ class RemoteNotificationsOperationsController: NSObject {
         
         guard !isLocked else {
             assertionFailure("Failure setting up notifications core data stack.")
-            completion(.failureSettingUpModelController)
+            completion(.dataUnavailable)
             return
         }
         
@@ -129,7 +129,7 @@ class RemoteNotificationsOperationsController: NSObject {
         
         guard let modelController = modelController else {
             assertionFailure("Failure setting up notifications core data stack.")
-            completion(.failureSettingUpModelController)
+            completion(.dataUnavailable)
             return
         }
         

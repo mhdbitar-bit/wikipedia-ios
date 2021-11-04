@@ -23,14 +23,6 @@ final class NotificationsCenterViewModel: NSObject {
     
     private var isPagingEnabled = true
     private var isFilteringOn = false
-    
-    var editMode = false {
-        didSet {
-            if oldValue != editMode {
-                modelController.updateCurrentCellViewModelsWith(editMode: editMode)
-            }
-        }
-    }
 
     // MARK: - Lifecycle
 
@@ -51,8 +43,8 @@ final class NotificationsCenterViewModel: NSObject {
             return
         }
         
-        modelController.addNewCellViewModelsWith(notifications: Array(newNotifications), editMode: self.editMode)
-        modelController.updateCurrentCellViewModelsWith(updatedNotifications: Array(refreshedNotifications), editMode: self.editMode)
+        modelController.addNewCellViewModelsWith(notifications: Array(newNotifications))
+        modelController.updateCurrentCellViewModelsWith(updatedNotifications: Array(refreshedNotifications))
         self.delegate?.cellViewModelsDidChange(cellViewModels: modelController.sortedCellViewModels)
     }
 
@@ -79,8 +71,9 @@ final class NotificationsCenterViewModel: NSObject {
                     return
                 }
                 
-                let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: self.isFilteringOn, fetchLimit: 100)
-                self.modelController.addNewCellViewModelsWith(notifications: notifications, editMode: self.editMode)
+                let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: self.isFilteringOn, fetchLimit: 5)
+                self.modelController.addNewCellViewModelsWith(notifications: notifications)
+
                 self.delegate?.cellViewModelsDidChange(cellViewModels: self.modelController.sortedCellViewModels)
             }
         }
@@ -93,26 +86,24 @@ final class NotificationsCenterViewModel: NSObject {
             return
         }
         
-        let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: isFilteringOn, fetchLimit: 50, fetchOffset: modelController.fetchOffset)
+        let notifications = self.remoteNotificationsController.fetchNotifications(isFilteringOn: isFilteringOn, fetchLimit: 5, fetchOffset: modelController.fetchOffset)
         
         guard notifications.count > 0 else {
             isPagingEnabled = false
             return
         }
         
-        modelController.addNewCellViewModelsWith(notifications: notifications, editMode: self.editMode)
+        modelController.addNewCellViewModelsWith(notifications: notifications)
         self.delegate?.cellViewModelsDidChange(cellViewModels: modelController.sortedCellViewModels)
     }
     
     func toggleCheckedStatus(cellViewModel: NotificationsCenterCellViewModel) {
-        cellViewModel.toggleCheckedStatus()
         reloadCellWithViewModelIfNeeded(viewModel: cellViewModel)
     }
     
     func toggleReadStatus(cellViewModel: NotificationsCenterCellViewModel) {
         remoteNotificationsController.toggleReadStatus(viewNotification: cellViewModel.notification)
     }
-
 }
 
 private extension NotificationsCenterViewModel {
@@ -124,7 +115,7 @@ private extension NotificationsCenterViewModel {
             }
             
             if let error = error,
-               error == RemoteNotificationsOperationsError.failureSettingUpModelController {
+               error == RemoteNotificationsOperationsError.dataUnavailable {
                 //TODO: trigger error state of some sort
                 completion()
                 return
@@ -140,5 +131,11 @@ private extension NotificationsCenterViewModel {
 extension NotificationsCenterViewModel: NotificationsCenterModelControllerDelegate {
     func reloadCellWithViewModelIfNeeded(viewModel: NotificationsCenterCellViewModel) {
         delegate?.reloadCellWithViewModelIfNeeded(viewModel)
+    }
+}
+
+extension NotificationsCenterCellViewModel: CustomStringConvertible {
+    var description: String {
+        return notification.key ?? ""
     }
 }

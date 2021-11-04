@@ -27,22 +27,26 @@ final class NotificationsCenterModelController {
         cellViewModels.removeAll()
     }
     
-    func addNewCellViewModelsWith(notifications: [RemoteNotification], editMode: Bool) {
+    func addNewCellViewModelsWith(notifications: [RemoteNotification]) {
+
+        print("currentViewModels: \(self.cellViewModels)")
         for notification in notifications {
 
             //Instantiate new view model and insert it into tracking properties
             
             guard let key = notification.key,
-                  let newCellViewModel = NotificationsCenterCellViewModel(notification: notification, languageLinkController: languageLinkController, editMode: editMode) else {
+                  let newCellViewModel = NotificationsCenterCellViewModel(notification: notification, languageLinkController: languageLinkController) else {
                 continue
             }
             
             cellViewModelsDict[key] = newCellViewModel
+            print("newViewModel: \(newCellViewModel)")
             cellViewModels.insert(newCellViewModel)
+            print("currentViewModels: \(self.cellViewModels)")
         }
     }
     
-    func updateCurrentCellViewModelsWith(updatedNotifications: [RemoteNotification]? = nil, editMode: Bool) {
+    func updateCurrentCellViewModelsWith(updatedNotifications: [RemoteNotification]? = nil) {
 
         let cellViewModelsToUpdate: [NotificationsCenterCellViewModel]
         
@@ -64,12 +68,15 @@ final class NotificationsCenterModelController {
         }
         
         cellViewModelsToUpdate.forEach {
-            $0.updateWith(editMode: editMode)
             self.delegate?.reloadCellWithViewModelIfNeeded(viewModel: $0)
         }
     }
     
     var fetchOffset: Int {
+        if cellViewModels.count > 3 {
+            return cellViewModels.count - 3
+        }
+        
         return cellViewModels.count
     }
     

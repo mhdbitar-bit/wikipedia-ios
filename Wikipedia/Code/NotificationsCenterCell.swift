@@ -2,7 +2,7 @@ import UIKit
 
 protocol NotificationsCenterCellDelegate: AnyObject {
     func userDidTapSecondaryActionForCellIdentifier(id: String)
-    func toggleCheckedStatus(viewModel: NotificationsCenterCellViewModel)
+    func userDidToggleCheckedStatus(viewModel: NotificationsCenterCellViewModel)
     func toggleReadStatus(viewModel: NotificationsCenterCellViewModel)
 }
 
@@ -24,14 +24,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
         view.imageView.contentMode = .scaleAspectFit
         view.layer.borderWidth = 2
         view.layer.borderColor = UIColor.clear.cgColor
-        view.insets = NSDirectionalEdgeInsets(top: 7, leading: 7, bottom: -7, trailing: -7)
         return view
-    }()
-    
-    lazy var leadingImageTapGestureRecognizer: UITapGestureRecognizer = {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tappedLeadingImage))
-        leadingImageView.addGestureRecognizer(tap)
-        return tap
     }()
     
     lazy var backgroundTapGestureRecognizer: UITapGestureRecognizer = {
@@ -205,6 +198,17 @@ final class NotificationsCenterCell: UICollectionViewCell {
         super.prepareForReuse()
         self.viewModel = nil
     }
+    
+    override var isSelected: Bool {
+        didSet {
+            guard let viewModel = viewModel else {
+                return
+            }
+            
+            viewModel.updateDisplayState(isSelected: isSelected)
+            updateCellStyle(forDisplayState: viewModel.displayState)
+        }
+    }
 
     func setup() {
         let topMargin: CGFloat = 13
@@ -296,14 +300,24 @@ final class NotificationsCenterCell: UICollectionViewCell {
 
     // MARK: - Public
 
-    func configure(viewModel: NotificationsCenterCellViewModel, theme: Theme) {
+    func configure(viewModel: NotificationsCenterCellViewModel, theme: Theme, isEditing: Bool) {
         self.viewModel = viewModel
         self.theme = theme
+        
+        viewModel.updateDisplayState(isEditing: isEditing, isSelected: isSelected)
 
         updateCellStyle(forDisplayState: viewModel.displayState)
         updateLabels(forViewModel: viewModel)
         updateProject(forViewModel: viewModel)
         updateMetaButton(forViewModel: viewModel)
+    }
+    
+    func configure(theme: Theme, isEditing: Bool) {
+        guard let viewModel = viewModel else {
+            return
+        }
+        
+        configure(viewModel: viewModel, theme: theme, isEditing: isEditing)
     }
 
     func updateCellStyle(forDisplayState displayState: NotificationsCenterCellDisplayState) {
@@ -311,7 +325,6 @@ final class NotificationsCenterCell: UICollectionViewCell {
             return
         }
 
-        // let displayState = NotificationsCenterCellDisplayState.allCases.randomElement()!
         let cellStyle = NotificationsCenterCellStyle(theme: theme, traitCollection: traitCollection, notificationType: notificationType)
 
         // Colors
@@ -328,7 +341,7 @@ final class NotificationsCenterCell: UICollectionViewCell {
         projectSourceLabel.layer.borderColor = cellStyle.projectSourceColor.cgColor
         projectSourceImage.tintColor = cellStyle.projectSourceColor
 
-        //selectedBackgroundView?.backgroundColor = cellStyle.selectedCellBackgroundColor
+        selectedBackgroundView?.backgroundColor = cellStyle.selectedCellBackgroundColor
 
         // Fonts
 
@@ -345,13 +358,12 @@ final class NotificationsCenterCell: UICollectionViewCell {
         leadingImageView.imageView.image = cellStyle.leadingImage(displayState)
         leadingImageView.imageView.tintColor = cellStyle.leadingImageTintColor
         leadingImageView.layer.borderColor = cellStyle.leadingImageBorderColor(displayState).cgColor
-        leadingImageTapGestureRecognizer.isEnabled = cellStyle.isLeadingImageTapGestureEnabled(displayState)
-        
-        backgroundTapGestureRecognizer.isEnabled = true
+
+        backgroundTapGestureRecognizer.isEnabled = !displayState.isEditing
     }
 
     func updateLabels(forViewModel viewModel: NotificationsCenterCellViewModel) {
-        headerLabel.text = viewModel.headerText
+        headerLabel.text = viewModel.notification.key //viewModel.headerText
         subheaderLabel.text = viewModel.subheaderText
         let messageSummaryText = viewModel.bodyText ?? ""
         messageSummaryLabel.text = messageSummaryText.isEmpty ? " " : viewModel.bodyText
@@ -392,14 +404,6 @@ final class NotificationsCenterCell: UICollectionViewCell {
         metaActionButton.setImage(image, for: .normal)
     }
 
-    @objc func tappedLeadingImage() {
-        guard let viewModel = viewModel else {
-            return
-        }
-
-        delegate?.toggleCheckedStatus(viewModel: viewModel)
-    }
-    
     @objc func tappedBackground() {
         guard let viewModel = viewModel else {
             return
