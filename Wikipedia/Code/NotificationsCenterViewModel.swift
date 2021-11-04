@@ -97,10 +97,6 @@ final class NotificationsCenterViewModel: NSObject {
         self.delegate?.cellViewModelsDidChange(cellViewModels: modelController.sortedCellViewModels)
     }
     
-    func toggleCheckedStatus(cellViewModel: NotificationsCenterCellViewModel) {
-        reloadCellWithViewModelIfNeeded(viewModel: cellViewModel)
-    }
-    
     func toggleReadStatus(cellViewModel: NotificationsCenterCellViewModel) {
         remoteNotificationsController.toggleReadStatus(viewNotification: cellViewModel.notification)
     }
