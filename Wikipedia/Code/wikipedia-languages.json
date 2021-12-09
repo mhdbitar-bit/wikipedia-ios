@@ -45,6 +45,11 @@
     "localName" : "Amharic"
   },
   {
+    "languageCode" : "ami",
+    "languageName" : "Pangcah",
+    "localName" : "Amis"
+  },
+  {
     "languageCode" : "an",
     "languageName" : "aragonés",
     "localName" : "Aragonese"
@@ -151,12 +156,12 @@
   },
   {
     "languageCode" : "be-tarask",
-    "languageName" : "беларуская (тарашкевіца)‎",
+    "languageName" : "беларуская (тарашкевіца)",
     "localName" : "Belarusian (Taraškievica orthography)"
   },
   {
     "languageCode" : "be-x-old",
-    "languageName" : "беларуская (тарашкевіца)‎",
+    "languageName" : "беларуская (тарашкевіца)",
     "localName" : "Belarusian (Taraškievica orthography)"
   },
   {
@@ -282,7 +287,7 @@
   {
     "languageCode" : "crh",
     "languageName" : "qırımtatarca",
-    "localName" : "Crimean Turkish"
+    "localName" : "Crimean Tatar"
   },
   {
     "languageCode" : "cs",
@@ -301,7 +306,7 @@
   },
   {
     "languageCode" : "cv",
-    "languageName" : "Чӑвашла",
+    "languageName" : "чӑвашла",
     "localName" : "Chuvash"
   },
   {
@@ -313,6 +318,11 @@
     "languageCode" : "da",
     "languageName" : "dansk",
     "localName" : "Danish"
+  },
+  {
+    "languageCode" : "dag",
+    "languageName" : "dagbanli",
+    "localName" : "Dagbani"
   },
   {
     "languageCode" : "de",
@@ -621,7 +631,7 @@
   },
   {
     "languageCode" : "inh",
-    "languageName" : "ГӀалгӀай",
+    "languageName" : "гӀалгӀай",
     "localName" : "Ingush"
   },
   {
@@ -681,7 +691,7 @@
   },
   {
     "languageCode" : "kbd",
-    "languageName" : "Адыгэбзэ",
+    "languageName" : "адыгэбзэ",
     "localName" : "Kabardian"
   },
   {
@@ -771,7 +781,7 @@
   },
   {
     "languageCode" : "ky",
-    "languageName" : "Кыргызча",
+    "languageName" : "кыргызча",
     "localName" : "Kyrgyz"
   },
   {
@@ -826,7 +836,7 @@
   },
   {
     "languageCode" : "lmo",
-    "languageName" : "lumbaart",
+    "languageName" : "lombard",
     "localName" : "Lombard"
   },
   {
@@ -1092,7 +1102,7 @@
   },
   {
     "languageCode" : "os",
-    "languageName" : "Ирон",
+    "languageName" : "ирон",
     "localName" : "Ossetic"
   },
   {
@@ -1171,6 +1181,11 @@
     "localName" : "Portuguese"
   },
   {
+    "languageCode" : "pwn",
+    "languageName" : "pinayuanan",
+    "localName" : "Paiwan"
+  },
+  {
     "languageCode" : "qu",
     "languageName" : "Runa Simi",
     "localName" : "Quechua"
@@ -1217,7 +1232,7 @@
   },
   {
     "languageCode" : "rw",
-    "languageName" : "Kinyarwanda",
+    "languageName" : "Ikinyarwanda",
     "localName" : "Kinyarwanda"
   },
   {
@@ -1269,6 +1284,11 @@
     "languageCode" : "sh",
     "languageName" : "srpskohrvatski \/ српскохрватски",
     "localName" : "Serbo-Croatian"
+  },
+  {
+    "languageCode" : "shi",
+    "languageName" : "Taclḥit",
+    "localName" : "Tachelhit"
   },
   {
     "languageCode" : "shn",
