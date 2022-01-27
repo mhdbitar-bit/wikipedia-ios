@@ -288,8 +288,8 @@ public class RemoteNotificationsAPIController: Fetcher {
     
     public func markAllAsSeen(project: RemoteNotificationsProject, completion: @escaping (Error?) -> Void) {
         
-        request(project: project, queryParameters: Query.markAllAsSeen(project: project), method: .post) { <#Decodable?#>, <#URLResponse?#>, <#Error?#> in
-            <#code#>
+        request(project: project, queryParameters: Query.markAllAsSeen(project: project), method: .post) { (result: MarkSeenResult?, _, error) in
+            
         }
     }
 
