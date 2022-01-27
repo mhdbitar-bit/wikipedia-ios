@@ -77,6 +77,10 @@ import CocoaLumberjackSwift
     public func markAllAsRead(languageLinkController: MWKLanguageLinkController) {
         operationsController.markAllAsRead(languageLinkController: languageLinkController)
     }
+    
+    public func markAllAsSeen() {
+        operationsController.markAllAsSeen()
+    }
 
     public func fetchNotifications(fetchLimit: Int = 50, fetchOffset: Int = 0) -> [RemoteNotification] {
         assert(Thread.isMainThread)

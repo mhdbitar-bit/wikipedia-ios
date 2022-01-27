@@ -308,6 +308,10 @@ class RemoteNotificationsOperationsController: NSObject {
         }
     }
     
+    func markAllAsSeen() {
+        
+    }
+    
     var numberOfUnreadNotifications: Int? {
         return self.modelController?.numberOfUnreadNotifications
     }

@@ -111,6 +111,10 @@ final class NotificationsCenterViewModel: NSObject {
         }
     }
     
+    func markAllAsSeen() {
+        remoteNotificationsController.markAllAsSeen()
+    }
+    
     func markAsReadOrUnread(viewModels: [NotificationsCenterCellViewModel], shouldMarkRead: Bool) {
         let identifierGroups = viewModels.map { $0.notification.identifierGroup }
         remoteNotificationsController.markAsReadOrUnread(identifierGroups: Set(identifierGroups), shouldMarkRead: shouldMarkRead, languageLinkController: languageLinkController)

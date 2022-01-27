@@ -201,6 +201,33 @@ public class RemoteNotificationsAPIController: Fetcher {
         case unknown
         case multiple([Error])
     }
+    
+    // MARK: Decodable: MarkSeenResult
+    
+    struct MarkSeenResult: Decodable {
+        let query: Query?
+        let error: ResultError?
+        
+        var succeeded: Bool {
+            return query?.markAsSeen?.result == .success
+        }
+        
+        struct Query: Decodable {
+            let markAsSeen: MarkAsSeen?
+            
+            enum CodingKeys: String, CodingKey {
+                case markAsSeen = "echomarkseen"
+            }
+        }
+        
+        struct MarkAsSeen: Decodable {
+            let result: Result?
+        }
+        
+        enum Result: String, Decodable {
+            case success
+        }
+    }
 
     private func notifications(from result: NotificationsResult?) -> Set<NotificationsResult.Notification>? {
         guard let result = result else {
@@ -256,6 +283,13 @@ public class RemoteNotificationsAPIController: Fetcher {
                 return
             }
             completion(nil)
+        }
+    }
+    
+    public func markAllAsSeen(project: RemoteNotificationsProject, completion: @escaping (Error?) -> Void) {
+        
+        request(project: project, queryParameters: Query.markAllAsSeen(project: project), method: .post) { <#Decodable?#>, <#URLResponse?#>, <#Error?#> in
+            <#code#>
         }
     }
 
@@ -390,6 +424,14 @@ public class RemoteNotificationsAPIController: Fetcher {
         
         static func markAllAsRead(project: RemoteNotificationsProject) -> Parameters? {
             let dictionary = ["action": "echomarkread",
+                              "all": "true",
+                              "wikis": project.notificationsApiWikiIdentifier,
+                              "format": "json"]
+            return dictionary
+        }
+        
+        static func markAllAsSeen(project: RemoteNotificationsProject) -> Parameters? {
+            let dictionary = ["action": "echomarkseen",
                               "all": "true",
                               "wikis": project.notificationsApiWikiIdentifier,
                               "format": "json"]
