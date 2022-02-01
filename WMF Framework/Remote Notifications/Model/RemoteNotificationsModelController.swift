@@ -244,6 +244,31 @@ final class RemoteNotificationsModelController: NSObject {
         }
         
     }
+    
+    public func markAllAsSeen(moc: NSManagedObjectContext, project: RemoteNotificationsProject, completion: @escaping () -> Void) {
+        moc.perform {
+            let unseenPredicate = self.unseenNotificationsPredicate
+            
+            // TODO: filter this better to only apply to wikipedia here OR create a method that returns this to avoid code repetition
+            
+            let wikiPredicate = NSPredicate(format: "wiki == %@", project.notificationsApiWikiIdentifier)
+            let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [unseenPredicate, wikiPredicate])
+            
+            self.notifications(with: compoundPredicate, moc: moc) { notifications in
+                guard let notifications = notifications,
+                      !notifications.isEmpty else {
+                          completion()
+                          return
+                      }
+                notifications.forEach { notifications in
+                    notifications.isSeen = true
+                }
+            }
+            self.save(moc: moc)
+            NotificationCenter.default.post(name: Notification.Name.NotificationsCenterBadgeNeedsUpdate, object: nil)
+            completion()
+        }
+    }
 
     public func markAsReadOrUnread(moc: NSManagedObjectContext, identifierGroups: Set<RemoteNotification.IdentifierGroup>, shouldMarkRead: Bool, completion: @escaping () -> Void) {
         
@@ -257,6 +282,10 @@ final class RemoteNotificationsModelController: NSObject {
     
     public func wikisWithUnreadNotifications(moc: NSManagedObjectContext, completion: @escaping ([String]) -> Void) {
         return wikis(moc: moc, predicate: unreadNotificationsPredicate, completion: completion)
+    }
+    
+    public func wikisWithUnseenNotifications(moc: NSManagedObjectContext, completion: @escaping ([String]) -> Void) {
+        return wikis(moc: moc, predicate: unseenNotificationsPredicate, completion: completion)
     }
 
     private func processNotifications(moc: NSManagedObjectContext, identifierGroups: Set<RemoteNotification.IdentifierGroup>,  handler: @escaping (RemoteNotification) -> Void, completion: @escaping () -> Void) {
@@ -310,6 +339,10 @@ final class RemoteNotificationsModelController: NSObject {
     
     private var unreadNotificationsPredicate: NSPredicate {
         return NSPredicate(format: "isRead == %@", NSNumber(value: false))
+    }
+    
+    private var unseenNotificationsPredicate: NSPredicate {
+        return NSPredicate(format: "isSeen == %@", NSNumber(value: false))
     }
 
     private func save(moc: NSManagedObjectContext) {

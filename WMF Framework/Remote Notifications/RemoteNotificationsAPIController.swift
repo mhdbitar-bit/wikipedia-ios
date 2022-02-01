@@ -228,6 +228,11 @@ public class RemoteNotificationsAPIController: Fetcher {
             case success
         }
     }
+    
+    enum MarkSeenError: LocalizedError {
+        case noResult
+        case unknown
+    }
 
     private func notifications(from result: NotificationsResult?) -> Set<NotificationsResult.Notification>? {
         guard let result = result else {
@@ -288,8 +293,30 @@ public class RemoteNotificationsAPIController: Fetcher {
     
     public func markAllAsSeen(project: RemoteNotificationsProject, completion: @escaping (Error?) -> Void) {
         
+        // Fix this so it only works for the wikipedias
+        
         request(project: project, queryParameters: Query.markAllAsSeen(project: project), method: .post) { (result: MarkSeenResult?, _, error) in
+            if let error = error {
+                completion(error)
+                return
+            }
             
+            guard let result = result else {
+                assertionFailure("Expected result")
+                completion(MarkSeenError.noResult)
+                return
+            }
+            
+            if let error = result.error {
+                completion(error)
+                return
+            }
+            
+            if !result.succeeded {
+                completion(MarkSeenError.unknown)
+                return
+            }
+            completion(nil)
         }
     }
 

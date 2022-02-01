@@ -1428,6 +1428,7 @@
 		830ECAD61FBDE77F0080B1EF /* ReadingListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830ECAD51FBDE77F0080B1EF /* ReadingListsTests.swift */; };
 		831937E723E1CE80006A9FF3 /* String+LinkParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 831937E623E1CE80006A9FF3 /* String+LinkParsing.swift */; };
 		831937E923E1CEAC006A9FF3 /* CharacterSet+LinkParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 831937E823E1CEAC006A9FF3 /* CharacterSet+LinkParsing.swift */; };
+		831A38A627A835BB0058AD43 /* RemoteNotificationsMarkAllAsSeenOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 831A38A527A835BB0058AD43 /* RemoteNotificationsMarkAllAsSeenOperation.swift */; };
 		831C15C62099EB3A001B04BF /* WMFArticle+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 831C15C52099EB3A001B04BF /* WMFArticle+Errors.swift */; };
 		8320331B22B90528004A9EDA /* NavigationStateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC92E65228D8C7B0035E7F0 /* NavigationStateController.swift */; };
 		8320331C22B90528004A9EDA /* NavigationStateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC92E65228D8C7B0035E7F0 /* NavigationStateController.swift */; };
@@ -4184,6 +4185,7 @@
 		831835301FD1AC490025DD3D /* NavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBar.swift; sourceTree = "<group>"; usesTabs = 0; };
 		831937E623E1CE80006A9FF3 /* String+LinkParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+LinkParsing.swift"; sourceTree = "<group>"; };
 		831937E823E1CEAC006A9FF3 /* CharacterSet+LinkParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterSet+LinkParsing.swift"; sourceTree = "<group>"; };
+		831A38A527A835BB0058AD43 /* RemoteNotificationsMarkAllAsSeenOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsMarkAllAsSeenOperation.swift; sourceTree = "<group>"; };
 		831C15C52099EB3A001B04BF /* WMFArticle+Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WMFArticle+Errors.swift"; sourceTree = "<group>"; };
 		8320332022B90548004A9EDA /* NSManagedObjectContext+NavigationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "NSManagedObjectContext+NavigationState.swift"; path = "WMF Framework/NSManagedObjectContext+NavigationState.swift"; sourceTree = SOURCE_ROOT; };
 		8320332222B906A0004A9EDA /* NavigationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NavigationState.swift; path = "WMF Framework/NavigationState.swift"; sourceTree = SOURCE_ROOT; };
@@ -7090,6 +7092,7 @@
 				67DA31872720957A0035D40F /* RemoteNotificationsPagingOperation.swift */,
 				7A0312FE215422960095C953 /* RemoteNotificationsMarkReadOrUnreadOperation.swift */,
 				6739A181273061220063E0E0 /* RemoteNotificationsMarkAllAsReadOperation.swift */,
+				831A38A527A835BB0058AD43 /* RemoteNotificationsMarkAllAsSeenOperation.swift */,
 				7A5357AA215552E7007998DC /* RemoteNotificationsOperation.swift */,
 			);
 			path = Operations;
@@ -11576,6 +11579,7 @@
 				83B87ECC1F71431F00F342F1 /* ArticleCollectionViewCell+ListDisplay.swift in Sources */,
 				BA7FF0B41F6188C70054CF02 /* CollectionViewCellActionsView.swift in Sources */,
 				D8D365151E953C7100593A38 /* ImageControllerCompletionManager.swift in Sources */,
+				831A38A627A835BB0058AD43 /* RemoteNotificationsMarkAllAsSeenOperation.swift in Sources */,
 				D8FA18FD1E1BDA4C009675C3 /* UIImageView+WMFImageFetching.m in Sources */,
 				D8FA18FE1E1BDA4C009675C3 /* UIColor+WMFStyle.m in Sources */,
 				D84C36161F32401B00895FA1 /* RankedArticleCollectionViewCell.swift in Sources */,

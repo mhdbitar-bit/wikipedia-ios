@@ -132,15 +132,13 @@ class RemoteNotificationsOperationsController: NSObject {
             completion(.dataUnavailable)
             return
         }
-        
         let preferredLanguages = languageLinkController.preferredLanguages
-   
+
         guard let appLanguage = languageLinkController.appLanguage else {
             completion(.failurePullingAppLanguage)
             return
         }
         
-        let primaryLanguageProject = RemoteNotificationsProject.wikipedia(appLanguage.languageCode, appLanguage.localizedName, appLanguage.languageVariantCode)
         let nonPrimaryLanguages = preferredLanguages.filter { $0.languageCode != appLanguage.languageCode }
 
         var nonPrimaryProjects: [RemoteNotificationsProject] = nonPrimaryLanguages.map { .wikipedia($0.languageCode, $0.localizedName, $0.languageVariantCode) }
@@ -175,8 +173,7 @@ class RemoteNotificationsOperationsController: NSObject {
             }
         }
         
-        
-        guard let primaryLanguageOperation = primaryLanguageOperation(primaryLanguageProject: primaryLanguageProject, nonPrimaryProjects: nonPrimaryProjects, operationType: operationType, completionOperation: completionOperation) else {
+        guard let primaryLanguageOperation = primaryLanguageOperation(primaryLanguageProject: getPrimaryLanguageProject(appLanguage: appLanguage), nonPrimaryProjects: nonPrimaryProjects, operationType: operationType, completionOperation: completionOperation) else {
             completion(.failureCreatingAppLanguagePagingOperation)
             return
         }
@@ -188,6 +185,10 @@ class RemoteNotificationsOperationsController: NSObject {
         }
         
         self.operationQueue.addOperations(finalListOfOperations + [completionOperation], waitUntilFinished: false)
+    }
+
+    private func getPrimaryLanguageProject(appLanguage: MWKLanguageLink) -> RemoteNotificationsProject {
+        return RemoteNotificationsProject.wikipedia(appLanguage.languageCode, appLanguage.localizedName, appLanguage.languageVariantCode)
     }
     
     private func attemptReauthenticateFromError(_ error: Error, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -309,6 +310,21 @@ class RemoteNotificationsOperationsController: NSObject {
     }
     
     func markAllAsSeen() {
+        guard !isLocked,
+              let modelController = modelController else {
+            return
+        }
+        
+        let backgroundContext = modelController.newBackgroundContext()
+        
+        modelController.wikisWithUnseenNotifications(moc: backgroundContext) { [weak self] wikis in
+            guard let self = self else {
+                return
+            }
+            
+            let projects = wikis.compactMap { RemoteNotificationsProject(apiIdentifier: $0, languageLinkController: self.languageLinkController) }
+            
+        }
         
     }
     
