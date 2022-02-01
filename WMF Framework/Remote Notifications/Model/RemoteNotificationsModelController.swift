@@ -249,8 +249,7 @@ final class RemoteNotificationsModelController: NSObject {
         moc.perform {
             let unseenPredicate = self.unseenNotificationsPredicate
             
-            // TODO: filter this better to only apply to wikipedia here OR create a method that returns this to avoid code repetition
-            
+            // TODO: create a method that returns this to avoid code repetition
             let wikiPredicate = NSPredicate(format: "wiki == %@", project.notificationsApiWikiIdentifier)
             let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [unseenPredicate, wikiPredicate])
             
@@ -265,7 +264,6 @@ final class RemoteNotificationsModelController: NSObject {
                 }
             }
             self.save(moc: moc)
-            NotificationCenter.default.post(name: Notification.Name.NotificationsCenterBadgeNeedsUpdate, object: nil)
             completion()
         }
     }
