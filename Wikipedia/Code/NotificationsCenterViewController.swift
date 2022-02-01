@@ -99,6 +99,7 @@ final class NotificationsCenterViewController: ViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         viewModel.refreshNotifications(force: true)
+        
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -124,7 +125,6 @@ final class NotificationsCenterViewController: ViewController {
     fileprivate func setupBarButtons() {
         enableToolbar()
         setToolbarHidden(false, animated: false)
-
         navigationItem.rightBarButtonItem = editButtonItem
         isEditing = false
 	}

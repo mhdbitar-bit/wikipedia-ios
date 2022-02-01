@@ -293,7 +293,7 @@ public class RemoteNotificationsAPIController: Fetcher {
     
     public func markAllAsSeen(project: RemoteNotificationsProject, completion: @escaping (Error?) -> Void) {
         
-        // Fix this so it only works for the wikipedias
+        // TODO: Maybe filter here as well this so it only works for the wikipedias
         
         request(project: project, queryParameters: Query.markAllAsSeen(project: project), method: .post) { (result: MarkSeenResult?, _, error) in
             if let error = error {

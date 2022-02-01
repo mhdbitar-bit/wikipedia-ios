@@ -323,9 +323,10 @@ class RemoteNotificationsOperationsController: NSObject {
             }
             
             let projects = wikis.compactMap { RemoteNotificationsProject(apiIdentifier: $0, languageLinkController: self.languageLinkController) }
+            let operations = projects.map { RemoteNotificationsMarkAllAsSeenOperation(project: $0, apiController: self.apiController, modelController: modelController) }
             
+            self.operationQueue.addOperations(operations, waitUntilFinished: false)
         }
-        
     }
     
     var numberOfUnreadNotifications: Int? {
