@@ -115,7 +115,7 @@ import CocoaLumberjackSwift
     
     public var areFiltersEnabled: Bool {
         
-        return countOfAllFilters > 0
+        return countOfAllFilters > 0 || areInboxFiltersEnabled
     }
     
     public var areInboxFiltersEnabled: Bool {

@@ -112,9 +112,7 @@ final class NotificationsCenterViewModel: NSObject {
     }
     
     func markAllAsSeen() {
-        if remoteNotificationsController.filterState.types.count == 0
-            || remoteNotificationsController.filterState.readStatus == .all
-            || remoteNotificationsController.filterState.projects.count == 0 {
+        if !remoteNotificationsController.areFiltersEnabled {
             remoteNotificationsController.markAllAsSeen()
         }
     }
