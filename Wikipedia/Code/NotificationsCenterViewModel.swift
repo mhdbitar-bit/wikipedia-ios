@@ -112,7 +112,11 @@ final class NotificationsCenterViewModel: NSObject {
     }
     
     func markAllAsSeen() {
-        remoteNotificationsController.markAllAsSeen()
+        if remoteNotificationsController.filterState.types.count == 0
+            || remoteNotificationsController.filterState.readStatus == .all
+            || remoteNotificationsController.filterState.projects.count == 0 {
+            remoteNotificationsController.markAllAsSeen()
+        }
     }
     
     func markAsReadOrUnread(viewModels: [NotificationsCenterCellViewModel], shouldMarkRead: Bool) {
