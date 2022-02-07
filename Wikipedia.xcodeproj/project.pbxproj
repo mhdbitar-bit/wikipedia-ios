@@ -356,6 +356,7 @@
 		671F5E0B236B8CAF00111116 /* EmptyViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 671F5E0A236B8CAF00111116 /* EmptyViewController.xib */; };
 		672034E327A2531F007DC24F /* RemoteNotificationsReauthenticateOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672034E227A2531F007DC24F /* RemoteNotificationsReauthenticateOperation.swift */; };
 		672034E527A2600C007DC24F /* RemoteNotificationsProjectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672034E427A2600C007DC24F /* RemoteNotificationsProjectOperation.swift */; };
+		672034E727ADEDE9007DC24F /* RemoteNotificationsTestingAPIController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672034E627ADEDE8007DC24F /* RemoteNotificationsTestingAPIController.swift */; };
 		672285722540B56D0038E332 /* ReferenceBackLinksViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7B85524B3B384005C2471 /* ReferenceBackLinksViewControllerDelegate.swift */; };
 		672285732540B56D0038E332 /* ReferenceBackLinksViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7B85524B3B384005C2471 /* ReferenceBackLinksViewControllerDelegate.swift */; };
 		672286282540DB330038E332 /* AppTabBarDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE891452445150B0058B642 /* AppTabBarDelegate.swift */; };
@@ -3850,6 +3851,7 @@
 		671F5E0A236B8CAF00111116 /* EmptyViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmptyViewController.xib; sourceTree = "<group>"; };
 		672034E227A2531F007DC24F /* RemoteNotificationsReauthenticateOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsReauthenticateOperation.swift; sourceTree = "<group>"; };
 		672034E427A2600C007DC24F /* RemoteNotificationsProjectOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsProjectOperation.swift; sourceTree = "<group>"; };
+		672034E627ADEDE8007DC24F /* RemoteNotificationsTestingAPIController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteNotificationsTestingAPIController.swift; sourceTree = "<group>"; };
 		672428962362113400490629 /* DiffFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffFetcher.swift; sourceTree = "<group>"; };
 		67282FBC24855B7B00B73E20 /* ArticleContextMenuPresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleContextMenuPresenting.swift; sourceTree = "<group>"; };
 		672B127722A450F000CC85A5 /* TalkPageHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TalkPageHeaderView.xib; sourceTree = "<group>"; };
@@ -7193,6 +7195,7 @@
 			children = (
 				7A52C01A2150389D00A3A4A1 /* RemoteNotificationsController.swift */,
 				7A0312F82153DEB30095C953 /* RemoteNotificationsAPIController.swift */,
+				672034E627ADEDE8007DC24F /* RemoteNotificationsTestingAPIController.swift */,
 				7A03130221542F5C0095C953 /* RemoteNotificationsOperationsController.swift */,
 				7A03130121542F250095C953 /* Model */,
 				7A03130021542F120095C953 /* Operations */,
@@ -11555,6 +11558,7 @@
 				D8EBD1BC1FBB177D00AA7DA9 /* ReadingListEntry+JSON.swift in Sources */,
 				0E728D321DAEE8FF0074EB4B /* WMFContinueReadingContentSource.m in Sources */,
 				D8FA18F91E1BDA4C009675C3 /* UIView+WMFDefaultNib.m in Sources */,
+				672034E727ADEDE9007DC24F /* RemoteNotificationsTestingAPIController.swift in Sources */,
 				D84C361D1F32404700895FA1 /* SideScrollingCollectionViewCell.swift in Sources */,
 				0042809225E6E395004945B3 /* MTLReflection.m in Sources */,
 				67D6C0212405B3D2005709B1 /* CacheGroup+CoreDataProperties.swift in Sources */,

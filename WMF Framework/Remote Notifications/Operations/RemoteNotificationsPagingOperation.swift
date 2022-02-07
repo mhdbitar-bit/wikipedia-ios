@@ -68,7 +68,8 @@ class RemoteNotificationsPagingOperation: RemoteNotificationsProjectOperation {
     }
     
     private func recursivelyFetchAndSaveNotifications(continueId: String? = nil) {
-        apiController.getAllNotifications(from: project, needsCrossWikiSummary: needsCrossWikiSummary, filter: filter, continueId: continueId) { [weak self] apiResult, error in
+        let fromRefresh = self is RemoteNotificationsRefreshOperation
+        apiController.getAllNotifications(from: project, needsCrossWikiSummary: needsCrossWikiSummary, filter: filter, continueId: continueId, fromRefresh: fromRefresh) { [weak self] apiResult, error in
             guard let self = self else {
                 return
             }
