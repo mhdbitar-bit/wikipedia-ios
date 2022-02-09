@@ -4,6 +4,19 @@ import Foundation
 class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController {
     
     var continueCounts: [String: Int] = [:]
+    let internalCountQueue = DispatchQueue.init(label: "RemoteNotificationsTestingAPIController.internalCountQueue")
+    
+    private func writeContinueCounts(key: String, value: Int) {
+        internalCountQueue.async {
+            self.continueCounts[key] = value
+        }
+    }
+    
+    private func readContinueCounts(key: String) -> Int? {
+        internalCountQueue.sync {
+            return self.continueCounts[key]
+        }
+    }
     
     override func getAllNotifications(from project: RemoteNotificationsProject, needsCrossWikiSummary: Bool = false, filter: Query.Filter = .none, continueId: String?, fromRefresh: Bool = false, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
@@ -15,18 +28,20 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
             
             print("🔵API CONTROLLER: \(project) - random total: \(randomTotal)")
             
-            var continueID: String? = "asdf"
-            if let count = self.continueCounts[project.notificationsApiWikiIdentifier] {
-                self.continueCounts[project.notificationsApiWikiIdentifier] = count + 1
-                if count > 40 {
+            var continueID: String?
+            if let count = self.readContinueCounts(key: project.notificationsApiWikiIdentifier) {
+                self.writeContinueCounts(key: project.notificationsApiWikiIdentifier, value: count + 1)
+                continueID = "continueID" + String(count + 1)
+                if count > 13 {
                     continueID = nil
                 }
             } else {
-                self.continueCounts[project.notificationsApiWikiIdentifier] = 2
+                continueID = "continueID" + String(2)
+                self.writeContinueCounts(key: project.notificationsApiWikiIdentifier, value: 2)
             }
             
-            if continueID == "asdf" {
-                print("🔵API CONTROLLER: \(project) - continue paging")
+            if continueID != nil {
+                print("🔵API CONTROLLER: \(project) - continue paging with \(continueID)")
             } else {
                 print("🔵API CONTROLLER: \(project) - end paging")
             }

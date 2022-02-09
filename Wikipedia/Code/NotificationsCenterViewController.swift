@@ -485,6 +485,8 @@ extension NotificationsCenterViewController: UICollectionViewDelegate {
         if isLast {
             viewModel.fetchNextPage()
         }
+        
+        print("👀 showing row: \(indexPath.item)")
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
