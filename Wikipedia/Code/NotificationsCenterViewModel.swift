@@ -39,7 +39,9 @@ final class NotificationsCenterViewModel: NSObject {
             //This setter may be called often due to quickly firing NSNotifications.
             //Don't allow a view update unless something has actually changed.
             if oldValue != isLoading {
+                
                 delegate?.update(types: [.emptyContent, .toolbarContent])
+                
             }
         }
     }

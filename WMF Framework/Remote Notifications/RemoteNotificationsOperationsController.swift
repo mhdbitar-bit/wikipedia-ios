@@ -16,7 +16,9 @@ class RemoteNotificationsOperationsController: NSObject {
     private let operationQueue: OperationQueue
     private let languageLinkController: MWKLanguageLinkController
     private let authManager: WMFAuthenticationManager
+    
     private(set) var isLoadingNotifications = false
+    
     private var loadingNotificationsCompletionBlocks: [(Result<Void, Error>) -> Void] = []
 
     required init(languageLinkController: MWKLanguageLinkController, authManager: WMFAuthenticationManager, apiController: RemoteNotificationsAPIController, modelController: RemoteNotificationsModelController) {
@@ -57,6 +59,7 @@ class RemoteNotificationsOperationsController: NSObject {
         kickoffPagingOperations() { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoadingNotifications = false
+                
                 self?.loadingNotificationsCompletionBlocks.forEach { completionBlock in
                     completionBlock(result)
                 }
@@ -157,9 +160,9 @@ class RemoteNotificationsOperationsController: NSObject {
     private func pagingOperationForProject(_ project: RemoteNotificationsProject, isAppLanguageProject: Bool) -> RemoteNotificationsPagingOperation {
         
         if modelController.isProjectAlreadyImported(project: project) {
-            return RemoteNotificationsRefreshOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject)
+            return RemoteNotificationsRefreshOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject, fromRefresh: true)
         } else {
-            return RemoteNotificationsImportOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject)
+            return RemoteNotificationsImportOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject, fromRefresh: false)
         }
     }
  
@@ -196,7 +199,7 @@ class RemoteNotificationsOperationsController: NSObject {
         
         //BEGIN: chained cross wiki operations
         //this generates additional API calls to fetch extra unread messages by inspecting the app language operation's cross wiki summary notification object in its response
-        let crossWikiGroupOperation = RemoteNotificationsRefreshCrossWikiGroupOperation(appLanguageProject: appLanguageProject, secondaryProjects: secondaryProjects, languageLinkController: languageLinkController, apiController: apiController, modelController: modelController)
+        let crossWikiGroupOperation = RemoteNotificationsRefreshCrossWikiGroupOperation(appLanguageProject: appLanguageProject, secondaryProjects: secondaryProjects, languageLinkController: languageLinkController, apiController: apiController, modelController: modelController, fromRefresh: modelController.isProjectAlreadyImported(project: appLanguageProject))
         let crossWikiAdapterOperation = BlockOperation {
             crossWikiGroupOperation.crossWikiSummaryNotification = appLanguageOperation.crossWikiSummaryNotification
         }

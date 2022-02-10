@@ -5,10 +5,12 @@ import Foundation
 class RemoteNotificationsPagingOperation: RemoteNotificationsProjectOperation {
     
     private let needsCrossWikiSummary: Bool
+    private let fromRefresh: Bool
     private(set) var crossWikiSummaryNotification: RemoteNotificationsAPIController.NotificationsResult.Notification?
     
-    required init(project: RemoteNotificationsProject, apiController: RemoteNotificationsAPIController, modelController: RemoteNotificationsModelController, needsCrossWikiSummary: Bool) {
+    required init(project: RemoteNotificationsProject, apiController: RemoteNotificationsAPIController, modelController: RemoteNotificationsModelController, needsCrossWikiSummary: Bool, fromRefresh: Bool) {
         self.needsCrossWikiSummary = needsCrossWikiSummary
+        self.fromRefresh = fromRefresh
         super.init(project: project, apiController: apiController, modelController: modelController)
     }
     
@@ -68,7 +70,6 @@ class RemoteNotificationsPagingOperation: RemoteNotificationsProjectOperation {
     }
     
     private func recursivelyFetchAndSaveNotifications(continueId: String? = nil) {
-        let fromRefresh = self is RemoteNotificationsRefreshOperation
         apiController.getAllNotifications(from: project, needsCrossWikiSummary: needsCrossWikiSummary, filter: filter, continueId: continueId, fromRefresh: fromRefresh) { [weak self] apiResult, error in
             guard let self = self else {
                 return

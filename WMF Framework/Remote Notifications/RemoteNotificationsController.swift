@@ -113,10 +113,11 @@ public enum RemoteNotificationsControllerError: Error {
     
     //MARK: Public
     
-    /// Fetches notifications from the server and imports them into the local database. Updates local database on a backgroundContext.
+    /// Fetches notifications from the server and saves them into the local database. Updates local database on a backgroundContext.
     /// - Parameters:
     ///   - force: Flag to force an API call, otherwise this will exit early if it's been less than 30 seconds since the last load attempt.
     ///   - completion: Completion block called once refresh attempt is complete.
+    ///
     public func loadNotifications(force: Bool, completion: ((Result<Void, Error>) -> Void)? = nil) {
         
         guard let operationsController = operationsController else {
@@ -129,6 +130,9 @@ public enum RemoteNotificationsControllerError: Error {
             return
         }
         
+        //checking refreshDeadlineController here is just to keep loading calls from happening too often.
+        //if operations controller is already loading notifications, go ahead and let this through.
+        //operations controller is set up to queue the completion block and call it when it's finished, without doubling up on calls.
         if !force && !refreshDeadlineController.shouldRefresh {
             completion?(.failure(RemoteNotificationsControllerError.attemptingToRefreshBeforeDeadline))
             return
@@ -175,7 +179,6 @@ public enum RemoteNotificationsControllerError: Error {
         operationsController.markAsReadOrUnread(identifierGroups: identifierGroups, shouldMarkRead: shouldMarkRead, languageLinkController: languageLinkController, completion: completion)
     }
     
-    
     /// Asks server to mark all notifications as read for projects that contain local unread notifications. Errors are not returned. Updates local database on a backgroundContext.
     public func markAllAsRead(completion: ((Result<Void, Error>) -> Void)? = nil) {
         
@@ -216,32 +219,35 @@ public enum RemoteNotificationsControllerError: Error {
             return completion(.failure(RemoteNotificationsControllerError.databaseUnavailable))
         }
         
-        loadNotifications(force: false) { [weak self] result in
-             guard let self = self else {
-                 return
-             }
+        let fetchFromDatabase: () -> Void = { [weak self] in
             
-            let loadingCompletion: () -> Void = {
-                let predicate = self.predicateForFilterSavedState(self.filterState)
-                
-                do {
-                    let notifications = try modelController.fetchNotifications(fetchLimit: fetchLimit, fetchOffset: fetchOffset, predicate: predicate)
-                    completion(.success(notifications))
-                } catch (let error) {
-                    completion(.failure(error))
-                }
+            guard let self = self else {
+                return
             }
+            
+            let predicate = self.predicateForFilterSavedState(self.filterState)
+            
+            do {
+                let notifications = try modelController.fetchNotifications(fetchLimit: fetchLimit, fetchOffset: fetchOffset, predicate: predicate)
+                completion(.success(notifications))
+            } catch (let error) {
+                completion(.failure(error))
+            }
+        }
+        
+
+        guard willNeedImporting() else {
+            fetchFromDatabase()
+            return
+        }
+        
+        loadNotifications(force: true) { result in
              
              switch result {
              case .success:
-                 loadingCompletion()
+                 fetchFromDatabase()
              case .failure(let error):
-                 if let error = error as? RemoteNotificationsControllerError,
-                    error == .attemptingToRefreshBeforeDeadline {
-                     loadingCompletion()
-                 } else {
-                     completion(.failure(error))
-                 }
+                 completion(.failure(error))
              }
         }
     }
@@ -310,6 +316,18 @@ public enum RemoteNotificationsControllerError: Error {
     }
     
     //MARK: Private
+    
+    private func willNeedImporting() -> Bool {
+        let appLanguageProjects =  languageLinkController.preferredLanguages.map { RemoteNotificationsProject.wikipedia($0.languageCode, $0.localizedName, $0.languageVariantCode) }
+        for project in appLanguageProjects {
+            if let alreadyImported = modelController?.isProjectAlreadyImported(project: project),
+               !alreadyImported {
+                return true
+            }
+        }
+        
+        return false
+    }
     
     /// Pulls filter state from local persistence and saves it in memory
     private func populateFilterStateFromPersistence() {

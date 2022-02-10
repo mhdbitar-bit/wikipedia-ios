@@ -3,21 +3,6 @@ import Foundation
 
 class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController {
     
-    var continueCounts: [String: Int] = [:]
-    let internalCountQueue = DispatchQueue.init(label: "RemoteNotificationsTestingAPIController.internalCountQueue")
-    
-    private func writeContinueCounts(key: String, value: Int) {
-        internalCountQueue.async {
-            self.continueCounts[key] = value
-        }
-    }
-    
-    private func readContinueCounts(key: String) -> Int? {
-        internalCountQueue.sync {
-            return self.continueCounts[key]
-        }
-    }
-    
     override func getAllNotifications(from project: RemoteNotificationsProject, needsCrossWikiSummary: Bool = false, filter: Query.Filter = .none, continueId: String?, fromRefresh: Bool = false, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             
@@ -28,20 +13,29 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
             
             print("🔵API CONTROLLER: \(project) - random total: \(randomTotal)")
             
-            var continueID: String?
-            if let count = self.readContinueCounts(key: project.notificationsApiWikiIdentifier) {
-                self.writeContinueCounts(key: project.notificationsApiWikiIdentifier, value: count + 1)
-                continueID = "continueID" + String(count + 1)
-                if count > 13 {
-                    continueID = nil
-                }
-            } else {
-                continueID = "continueID" + String(2)
-                self.writeContinueCounts(key: project.notificationsApiWikiIdentifier, value: 2)
+            var memoryCount: Int?
+            if let paramId = continueId?.dropFirst(10),
+               let paramIntId = Int(paramId) {
+                memoryCount = paramIntId
             }
             
-            if continueID != nil {
-                print("🔵API CONTROLLER: \(project) - continue paging with \(continueID)")
+            var newContinueId: String?
+            
+            if fromRefresh {
+                newContinueId = nil
+            } else {
+                if let memoryCount = memoryCount {
+                    newContinueId = "continueID" + String(memoryCount + 1)
+                    if memoryCount > 12 {
+                        newContinueId = nil
+                    }
+                } else {
+                    newContinueId = "continueID" + String(2)
+                }
+            }
+            
+            if newContinueId != nil {
+                print("🔵API CONTROLLER: \(project) - continue paging with \(newContinueId!)")
             } else {
                 print("🔵API CONTROLLER: \(project) - end paging")
             }
@@ -53,7 +47,11 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
                 individualNotifications.append(crossWikiNotification)
             }
             
-            let notifications = RemoteNotificationsAPIController.NotificationsResult.Query.Notifications(list: individualNotifications, continueId: continueID)
+            //insert one last very specific one
+            let lastSpecificRefresh = RemoteNotificationsAPIController.NotificationsResult.Notification(specific: true, fromRefresh: fromRefresh)
+            individualNotifications.append(lastSpecificRefresh)
+            
+            let notifications = RemoteNotificationsAPIController.NotificationsResult.Query.Notifications(list: individualNotifications, continueId: newContinueId)
             
             completion(notifications, nil)
         }
@@ -119,6 +117,26 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
        
         self.message = nil
         self.revisionID = nil
+    }
+    
+    init(specific: Bool, fromRefresh: Bool) {
+        self.wiki = "enwiki"
+        self.type = "reverted"
+        self.category = "reverted"
+        self.id = "abcd1234"
+        
+        self.section = "alert"
+        
+        self.timestamp = Timestamp(specific: true)
+        self.title = Title(specific: true)
+        self.agent = Agent(specific: true)
+        
+        let isRead = fromRefresh
+        self.readString = isRead ? "isRead" : nil
+       
+        self.message = Message(specific: true, identifier: "abcd1234")
+        self.revisionID = nil
+        self.sources = nil
     }
     
     init(testing: Bool, project: RemoteNotificationsProject, fromRefresh: Bool) {
@@ -192,6 +210,13 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
         self.utciso8601 = dateString8601
         self.utcunix = String(unixTimeInterval)
     }
+    
+    init(specific: Bool) {
+        let dateString8601 = DateFormatter.wmf_iso8601().string(from: Date())
+        let unixTimeInterval = Date().timeIntervalSince1970
+        self.utciso8601 = dateString8601
+        self.utcunix = String(unixTimeInterval)
+    }
 }
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification.Title {
@@ -219,6 +244,13 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
                 self.text = "Dog"
             }
         }
+    }
+    
+    init(specific: Bool) {
+        self.full = "Cat"
+        self.namespace = ""
+        self.namespaceKey = 0
+        self.text = "Cat"
     }
 }
 
@@ -249,12 +281,24 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
         self.id = String(42540)
         self.name = "TSevener (WMF)"
     }
+    
+    init(specific: Bool) {
+        self.id = String(42540)
+        self.name = "TSevener (WMF)"
+    }
 }
 
 fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notification.Message {
     init(testing: Bool, identifier: String) {
         self.header = "\(identifier)"
         self.body = "Test body text for identifier: \(identifier)"
+        let primaryLink = RemoteNotificationLink(type: nil, url: URL(string:"https://en.wikipedia.org/wiki/Cat")!, label: "Label for primary link")
+        self.links = RemoteNotificationLinks(primary: primaryLink, secondary: nil, legacyPrimary: primaryLink)
+    }
+    
+    init(specific: Bool, identifier: String) {
+        self.header = "\(identifier)"
+        self.body = "SPECIFIC - Test body text for identifier: \(identifier)"
         let primaryLink = RemoteNotificationLink(type: nil, url: URL(string:"https://en.wikipedia.org/wiki/Cat")!, label: "Label for primary link")
         self.links = RemoteNotificationLinks(primary: primaryLink, secondary: nil, legacyPrimary: primaryLink)
     }
