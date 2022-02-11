@@ -79,8 +79,14 @@ final class NotificationsCenterViewModel: NSObject {
     @objc func contextObjectsDidChange(_ notification: NSNotification) {
         
         //TODO: Handle other key types? (Deleted, Updated, Invalidated)
-        let refreshedNotifications = notification.userInfo?[NSRefreshedObjectsKey] as? Set<RemoteNotification> ?? []
-        let newNotifications = notification.userInfo?[NSInsertedObjectsKey] as? Set<RemoteNotification> ?? []
+        var refreshedNotifications = notification.userInfo?[NSRefreshedObjectsKey] as? Set<RemoteNotification> ?? []
+        var newNotifications = notification.userInfo?[NSInsertedObjectsKey] as? Set<RemoteNotification> ?? []
+        
+        //run refreshed and new notifications through saved filter so we're not inserting or refreshing objects that shouldn't be showing
+        if let predicate = remoteNotificationsController.filterPredicate {
+            refreshedNotifications = (refreshedNotifications as NSSet).filtered(using: predicate) as? Set<RemoteNotification> ?? refreshedNotifications
+            newNotifications = (newNotifications as NSSet).filtered(using: predicate) as? Set<RemoteNotification> ?? newNotifications
+        }
         
         guard (refreshedNotifications.count > 0 || newNotifications.count > 0) else {
             return
