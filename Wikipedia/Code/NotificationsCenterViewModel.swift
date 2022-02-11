@@ -43,6 +43,8 @@ final class NotificationsCenterViewModel: NSObject {
                 delegate?.update(types: [.emptyContent, .toolbarContent])
                 
             }
+            
+            print("‼️Loading state changing on NotificationsCenterViewModel: \(isLoading)")
         }
     }
 

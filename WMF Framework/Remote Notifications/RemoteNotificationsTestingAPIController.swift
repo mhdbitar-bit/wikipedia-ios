@@ -3,13 +3,13 @@ import Foundation
 
 class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController {
     
-    override func getAllNotifications(from project: RemoteNotificationsProject, needsCrossWikiSummary: Bool = false, filter: Query.Filter = .none, continueId: String?, fromRefresh: Bool = false, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
+    override func getAllNotifications(from project: RemoteNotificationsProject, needsCrossWikiSummary: Bool = false, filter: Query.Filter = .none, continueId: String?, fromRefresh: Bool = false, fromCrossWikiOperation: Bool = false, completion: @escaping (RemoteNotificationsAPIController.NotificationsResult.Query.Notifications?, Error?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             
             //simulate time it takes to return from network
             sleep(UInt32(Int.random(in: 0...2)))
             
-            let randomTotal = fromRefresh ? Int.random(in: 0...1) : 50
+            let randomTotal = fromRefresh || fromCrossWikiOperation ? Int.random(in: 0...1) : 50
             
             print("🔵API CONTROLLER: \(project) - random total: \(randomTotal)")
             
@@ -21,12 +21,12 @@ class RemoteNotificationsTestingAPIController: RemoteNotificationsAPIController 
             
             var newContinueId: String?
             
-            if fromRefresh {
+            if fromRefresh || fromCrossWikiOperation {
                 newContinueId = nil
             } else {
                 if let memoryCount = memoryCount {
                     newContinueId = "continueID" + String(memoryCount + 1)
-                    if memoryCount > 12 {
+                    if memoryCount > 24 { //note: add 7 app languages for this to shake out to 10,000 imported
                         newContinueId = nil
                     }
                 } else {
@@ -90,10 +90,6 @@ fileprivate extension RemoteNotificationsAPIController.NotificationsResult.Notif
         self.type = "foreign"
         self.id = "-1"
         self.sources = [
-            "testwiki": ["title": "Test Wikipedia"],
-            "frwiki": ["title": "French Wikipedia"],
-            "zhwiki": ["title": "Chinese Wikipedia"],
-            "eswiki": ["title": "Spanish Wikipedia"],
             "enwikibooks": ["title": "English Wikibooks"],
             "eswiktionary": ["title": "Spanish Wiktionary"],
             "dewikiquote": ["title": "German Wikiquote"],

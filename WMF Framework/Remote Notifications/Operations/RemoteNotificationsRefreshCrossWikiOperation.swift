@@ -65,7 +65,7 @@ class RemoteNotificationsRefreshCrossWikiGroupOperation: RemoteNotificationsOper
         //extract new projects from summary object that aren't already queued up to be fetched as an app language or secondary operation
         let filteredCrossWikiProjects = crossWikiProjects.filter { !([appLanguageProject] + secondaryProjects).contains($0) }
 
-        return filteredCrossWikiProjects.map { RemoteNotificationsRefreshCrossWikiOperation(project: $0, apiController: self.apiController, modelController: self.modelController, needsCrossWikiSummary: false, fromRefresh: fromRefresh)}
+        return filteredCrossWikiProjects.map { RemoteNotificationsRefreshCrossWikiOperation(project: $0, apiController: self.apiController, modelController: self.modelController, needsCrossWikiSummary: false, fromRefresh: fromRefresh, fromCrossWikiOperation: true)}
     }
 }
 

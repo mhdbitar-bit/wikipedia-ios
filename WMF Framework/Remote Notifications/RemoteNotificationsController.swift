@@ -215,11 +215,16 @@ public enum RemoteNotificationsControllerError: Error {
     ///   - fetchOffset: Offset for fetching notifications. Use when fetching later pages of data
     /// - Returns: Array of RemoteNotifications
     public func fetchNotifications(fetchLimit: Int = 50, fetchOffset: Int = 0, completion: @escaping (Result<[RemoteNotification], Error>) -> Void) {
+        
+        print("🤑entering fetchNotifications")
+        
         guard let modelController = modelController else {
             return completion(.failure(RemoteNotificationsControllerError.databaseUnavailable))
         }
         
         let fetchFromDatabase: () -> Void = { [weak self] in
+            
+            print("🏝fetchFromDatabase completion")
             
             guard let self = self else {
                 return
@@ -237,16 +242,21 @@ public enum RemoteNotificationsControllerError: Error {
         
 
         guard willNeedImporting() else {
+            print("🤷‍♀️does not need importing, only fetching from database")
             fetchFromDatabase()
             return
         }
         
         loadNotifications(force: true) { result in
+            
+            
              
              switch result {
              case .success:
+                 print("🐭load Notifications completion, now fetching from database")
                  fetchFromDatabase()
              case .failure(let error):
+                 print("🦊load Notifications failure, now completing with error")
                  completion(.failure(error))
              }
         }
