@@ -1414,7 +1414,7 @@ NSString *const WMFLanguageVariantAlertsLibraryVersion = @"WMFLanguageVariantAle
     } else {
         exploreViewController.navigationItem.leftBarButtonItem = nil;
     }
-
+    NSLog(@"update navigation items");
     [exploreViewController.navigationBar updateNavigationItems];
 }
 

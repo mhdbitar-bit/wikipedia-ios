@@ -122,7 +122,7 @@ static NSString *const WMFSettingsURLDonation = @"https://donate.wikimedia.org/?
             self.navigationItem.leftBarButtonItem = nil;
         }
     }
-
+    NSLog(@"update navigation items");
     [self.navigationBar updateNavigationItems];
 }
 
