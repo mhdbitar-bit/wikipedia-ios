@@ -314,10 +314,6 @@ public enum RemoteNotificationsControllerError: Error {
         }
     }
     
-    public var filterPredicate: NSPredicate? {
-        predicateForFilterSavedState(filterState)
-    }
-    
     //MARK: Internal
     
     @objc func deleteLegacyDatabaseFiles() throws -> Void {
