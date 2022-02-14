@@ -157,9 +157,9 @@ class RemoteNotificationsOperationsController: NSObject {
     private func pagingOperationForProject(_ project: RemoteNotificationsProject, isAppLanguageProject: Bool) -> RemoteNotificationsPagingOperation {
         
         if modelController.isProjectAlreadyImported(project: project) {
-            return RemoteNotificationsRefreshOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject)
+            return RemoteNotificationsRefreshOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject, fromRefresh: true, fromCrossWikiOperation: false)
         } else {
-            return RemoteNotificationsImportOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject)
+            return RemoteNotificationsImportOperation(project: project, apiController: self.apiController, modelController: modelController, needsCrossWikiSummary: isAppLanguageProject, fromRefresh: false, fromCrossWikiOperation: false)
         }
     }
  
