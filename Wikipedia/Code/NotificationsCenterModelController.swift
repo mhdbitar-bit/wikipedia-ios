@@ -20,8 +20,14 @@ final class NotificationsCenterModelController {
     
     @discardableResult func addNewCellViewModelsWith(notifications: [RemoteNotification], isEditing: Bool) -> NotificationsCenterUpdateType? {
         
+        //run new notifications through saved filter so we're not inserting objects that shouldn't display
+        var notificationsToInsert = notifications
+        if let predicate = remoteNotificationsController.filterPredicate {
+            notificationsToInsert = (notifications as NSArray).filtered(using: predicate) as? Array<RemoteNotification> ?? notificationsToInsert
+        }
+        
         var newCellViewModels: [NotificationsCenterCellViewModel] = []
-        for notification in notifications {
+        for notification in notificationsToInsert {
 
             //Instantiate new view model and insert it into tracking properties
             
