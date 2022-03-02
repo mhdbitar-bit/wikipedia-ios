@@ -1,11 +1,10 @@
 import XCTest
-@testable import Utilities
+import Utilities
 
 final class UtilitiesTests: XCTestCase {
     func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        //XCTAssertEqual(Utilities().text, "Hello, World!")
+        let simpleArray = [0,1,2,3]
+        XCTAssertEqual(simpleArray[safeIndex: 3], 3)
+        XCTAssertNil(simpleArray[safeIndex: 4])
     }
 }

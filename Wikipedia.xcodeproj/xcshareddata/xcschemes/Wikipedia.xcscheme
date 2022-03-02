@@ -84,6 +84,16 @@
                </Test>
             </SkippedTests>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "UtilitiesTests"
+               BuildableName = "UtilitiesTests"
+               BlueprintName = "UtilitiesTests"
+               ReferencedContainer = "container:Utilities">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
