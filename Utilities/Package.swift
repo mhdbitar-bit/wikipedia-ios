@@ -20,9 +20,15 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Utilities",
-            dependencies: []),
+            dependencies: [],
+            swiftSettings: [
+                .define("APPLICATION_EXTENSION_API_ONLY=YES")
+            ]),
         .testTarget(
             name: "UtilitiesTests",
-            dependencies: ["Utilities"]),
+            dependencies: ["Utilities"],
+            swiftSettings: [
+                .define("APPLICATION_EXTENSION_API_ONLY=YES")
+            ]),
     ]
 )
