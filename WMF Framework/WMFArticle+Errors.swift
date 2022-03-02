@@ -1,6 +1,5 @@
 import Foundation
 
-
 public enum ArticleError: Int32, Error {
     case none = 0
     case saveToDiskFailed = 1

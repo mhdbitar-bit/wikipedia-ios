@@ -1,5 +1,6 @@
 
 import Foundation
+import Utilities
 
 enum ImageCacheDBWriterError: Error {
     case batchURLInsertFailure
