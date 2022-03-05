@@ -60,18 +60,41 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
 }
 
 + (instancetype)wmf_placesActivityWithURL:(NSURL *)activityURL {
+    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
+
     NSURLComponents *components = [NSURLComponents componentsWithURL:activityURL resolvingAgainstBaseURL:NO];
+    
+    [self handleArticle:activity :components];
+    [self handleLocation:activity :components];
+
+    return activity;
+}
+
++ (void)handleArticle:(NSUserActivity *)activity :(NSURLComponents *)components {
     NSURL *articleURL = nil;
     for (NSURLQueryItem *item in components.queryItems) {
         if ([item.name isEqualToString:@"WMFArticleURL"]) {
             NSString *articleURLString = item.value;
             articleURL = [NSURL URLWithString:articleURLString];
+            activity.webpageURL = articleURL;
             break;
         }
     }
-    NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
-    activity.webpageURL = articleURL;
-    return activity;
+}
+
++ (void)handleLocation:(NSUserActivity *)activity :(NSURLComponents *)components {
+    NSString *latitude = @"";
+    NSString *longitude = @"";
+    for (NSURLQueryItem *item in components.queryItems) {
+        if ([item.name isEqualToString:@"latitude"]) {
+            latitude = item.value;
+        } else if ([item.name isEqualToString:@"longitude"]) {
+            longitude = item.value;
+        }
+    }
+    
+    [activity addUserInfoEntriesFromDictionary:@{@"latitude": latitude}];
+    [activity addUserInfoEntriesFromDictionary:@{@"longitude": longitude}];
 }
 
 + (instancetype)wmf_exploreViewActivity {
