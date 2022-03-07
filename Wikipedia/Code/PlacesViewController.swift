@@ -2440,3 +2440,19 @@ extension PlacesViewController {
         }
     }
 }
+
+// MARK: - Show location after get coordinates from External link
+
+extension PlacesViewController {
+    @objc func showLocation(_ location: [String: String]) {
+        if let lonString = location["longitude"], let latString = location["latitude"] {
+            if let longitude = CLLocationDegrees(lonString), let latitude = CLLocationDegrees(latString) {
+                let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                zoomAndPanMapView(toLocation: CLLocation(
+                    latitude: coordinates.latitude,
+                    longitude: coordinates.longitude
+                ))
+            }
+        }
+    }
+}
